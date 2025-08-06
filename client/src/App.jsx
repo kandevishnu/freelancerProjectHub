@@ -1,7 +1,28 @@
-export default function App() {
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Signup from "./pages/Signup";
+import Login from "./pages/Login";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import Dashboard from "./pages/Dashboard";
+import { ToastContainer } from "react-toastify";
+
+const App = () => {
   return (
-    <div className="h-screen flex items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-500">
-      <h1 className="text-white text-4xl font-bold">Freelancer Project Hub 🚀</h1>
-    </div>
+    <>
+      <Routes>
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    <ToastContainer position="top-center" autoClose={3000} />
+    </>
   );
-}
+};
+
+export default App;
