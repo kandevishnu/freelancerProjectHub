@@ -9,11 +9,15 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import ClientDashboard from "./pages/ClientDashboard";
 import FreelancerDashboard from "./pages/FreelancerDashboard";
+import Marketplace from "./pages/Marketplace";
+import ProjectDetail from "./pages/ProjectDetail";
 
 // Route Guards
 import ProtectedRoute from "./routes/ProtectedRoute";
 import RoleGuard from "./routes/RoleGuard";
 import PublicRoute from "./routes/PublicRoute"; // Import the new guard
+import CreateProject from "./pages/CreateProject";
+import ViewProposals from "./pages/ViewProposals";
 
 // ... The Dashboard component remains the same as before ...
 const Dashboard = () => {
@@ -23,7 +27,6 @@ const Dashboard = () => {
   if (user?.role === "freelancer") return <Navigate to="/freelancer" replace />;
   return <Navigate to="/login" replace />;
 };
-
 
 const App = () => {
   return (
@@ -61,6 +64,28 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="/marketplace" element={<Marketplace />} />
+        <Route path="/project/:projectId" element={<ProjectDetail />} />
+
+        <Route
+          path="/project/new"
+          element={
+            <ProtectedRoute>
+              <CreateProject />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/project/:projectId/proposals"
+          element={
+            <ProtectedRoute>
+              <RoleGuard allow={['client']}>
+                <ViewProposals />
+              </RoleGuard>
             </ProtectedRoute>
           }
         />
