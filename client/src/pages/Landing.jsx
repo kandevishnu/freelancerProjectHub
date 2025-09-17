@@ -178,7 +178,7 @@ export default function LandingPage() {
             </div>
             <div className="bg-slate-100 p-8 rounded-xl shadow-inner">
               <img
-                src="/client-feature-ui.png"
+                src="https://www.capgemini.com/wp-content/uploads/2021/07/Capgemini_client-stories.jpg"
                 alt="Client Dashboard View"
                 className="rounded-lg shadow-xl ring-1 ring-gray-900/10"
               />
@@ -223,7 +223,7 @@ export default function LandingPage() {
             </div>
             <div className="lg:order-first bg-slate-100 p-8 rounded-xl shadow-inner">
               <img
-                src="/freelancer-feature-ui.png"
+                src="https://www.hrmanagementapp.com/wp-content/uploads/2019/06/freelancer-2.jpg"
                 alt="Freelancer Task View"
                 className="rounded-lg shadow-xl ring-1 ring-gray-900/10"
               />

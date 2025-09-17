@@ -9,7 +9,6 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        // Add 'Inter' as the first font in the sans-serif stack
         sans: ['Inter', ...defaultTheme.fontFamily.sans],
       },
     },

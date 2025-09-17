@@ -1,31 +1,35 @@
+// src/pages/Login.jsx
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth(); // Correctly use the login function from context
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
+      // Use the relative path for the API call
+      const res = await axios.post("/api/auth/login", {
         email,
         password,
       });
 
-      // Assuming backend returns a token and user object
       const { token, user } = res.data;
 
-      // Store token in localStorage for future authenticated requests
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
+      // Use the context function to handle login state
+      login({ token, user });
 
       toast.success("✅ Login successful!");
-      navigate("/");
+
+      // Navigate to the central dashboard for role-based redirection
+      navigate("/dashboard");
     } catch (err) {
       toast.error(err.response?.data?.message || "❌ Invalid credentials");
     }
@@ -61,12 +65,13 @@ const Login = () => {
         </form>
         <p className="text-center text-sm text-gray-600 mt-4">
           Don’t have an account?{" "}
-          <span
+          {/* Use the Link component for internal navigation */}
+          <Link
+            to="/signup"
             className="text-blue-600 hover:underline cursor-pointer"
-            onClick={() => navigate("/signup")}
           >
             Sign Up
-          </span>
+          </Link>
         </p>
       </div>
     </div>
