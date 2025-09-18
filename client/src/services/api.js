@@ -103,3 +103,32 @@ export const updateTaskStatus = async (projectId, taskId, status) => {
     handleError(error);
   }
 };
+
+// --- Deliverable API Calls ---
+
+export const getDeliverablesForProject = async (projectId) => {
+  try {
+    const res = await axios.get(`/api/projects/${projectId}/deliverables`);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const uploadDeliverable = async (projectId, formData) => {
+  try {
+    // For file uploads, it's safest to manually construct the headers
+    // to ensure both Content-Type and Authorization are present.
+    const config = {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        // The Authorization header was missing. It's added here.
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
+    };
+    const res = await axios.post(`/api/projects/${projectId}/deliverables`, formData, config);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};

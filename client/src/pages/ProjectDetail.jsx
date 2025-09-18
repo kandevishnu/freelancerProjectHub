@@ -1,18 +1,21 @@
-// src/pages/ProjectDetail.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { getProjectById, getTasksForProject, updateTaskStatus, submitProposal } from '../services/api';
+import { getProjectById, getTasksForProject, updateTaskStatus, submitProposal, createTask } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+
 import ProposalModal from '../components/ProposalModal';
 import TaskBoard from '../components/TaskBoard';
+import AddTaskModal from '../components/AddTaskModal';
+import Deliverables from '../components/Deliverables';
 
 const ProjectDetail = () => {
   const [project, setProject] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
+  const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const { projectId } = useParams();
   const { user } = useAuth();
@@ -53,10 +56,21 @@ const ProjectDetail = () => {
     try {
       await submitProposal(projectId, proposalData);
       toast.success('Proposal submitted successfully!');
-      setIsModalOpen(false);
+      setIsProposalModalOpen(false);
       setHasSubmitted(true);
     } catch (err) {
       toast.error(err.message || 'Failed to submit proposal.');
+    }
+  };
+
+  const handleCreateTask = async (title) => {
+    try {
+      await createTask(projectId, { title });
+      toast.success('New task added!');
+      setIsAddTaskModalOpen(false);
+      fetchProjectAndTasks(); 
+    } catch (err) {
+      toast.error(err.message || 'Failed to add task.');
     }
   };
 
@@ -65,6 +79,7 @@ const ProjectDetail = () => {
   if (!project) return <div className="text-center p-10">Project not found.</div>;
 
   const canSubmitProposal = user && user.role === 'freelancer' && project.status === 'open';
+  const isProjectParticipant = user && (user._id === project.client._id || user._id === project.freelancer?._id);
 
   return (
     <>
@@ -86,7 +101,7 @@ const ProjectDetail = () => {
           {canSubmitProposal && (
             <div className="mt-8 text-center">
               <button
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => setIsProposalModalOpen(true)}
                 disabled={hasSubmitted}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-transform transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
@@ -96,16 +111,25 @@ const ProjectDetail = () => {
           )}
         </div>
 
-        {project.status === 'in-progress' && (
-          <TaskBoard tasks={tasks} onStatusChange={handleTaskStatusChange} />
+        {project.status === 'in-progress' && isProjectParticipant && (
+          <>
+            <div className="flex justify-between items-center mt-8 mb-4">
+              <h2 className="text-2xl font-bold">Task Board</h2>
+              <button
+                onClick={() => setIsAddTaskModalOpen(true)}
+                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg"
+              >
+                + Add Task
+              </button>
+            </div>
+            <TaskBoard tasks={tasks} onStatusChange={handleTaskStatusChange} />
+            <Deliverables project={project} />
+          </>
         )}
       </div>
 
-      <ProposalModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={handleProposalSubmit}
-      />
+      <ProposalModal isOpen={isProposalModalOpen} onClose={() => setIsProposalModalOpen(false)} onSubmit={handleProposalSubmit} />
+      <AddTaskModal isOpen={isAddTaskModalOpen} onClose={() => setIsAddTaskModalOpen(false)} onSubmit={handleCreateTask} />
     </>
   );
 };
