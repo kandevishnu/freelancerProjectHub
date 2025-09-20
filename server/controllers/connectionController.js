@@ -1,5 +1,7 @@
 import Connection from '../models/Connection.js';
 import User from '../models/User.js';
+import Notification from '../models/Notification.js';
+import { getIO } from '../socket.js';
 
 export const getPendingRequests = async (req, res) => {
   try {
@@ -65,11 +67,11 @@ export const getMyConnections = async (req, res) => {
     const userId = req.user._id;
 
     const connections = await Connection.find({
-      participants: userId,
+      $or: [{ requester: userId }, { recipient: userId }],
       status: 'accepted',
     });
 
-    const friendIds = connections.map(conn => 
+    const friendIds = connections.map(conn =>
       conn.requester.equals(userId) ? conn.recipient : conn.requester
     );
 
