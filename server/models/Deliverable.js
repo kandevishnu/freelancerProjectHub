@@ -1,4 +1,3 @@
-// models/Deliverable.js
 import mongoose from 'mongoose';
 
 const DeliverableSchema = new mongoose.Schema(

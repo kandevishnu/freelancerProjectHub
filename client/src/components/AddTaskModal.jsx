@@ -1,4 +1,3 @@
-// src/components/AddTaskModal.jsx
 import React, { useState } from 'react';
 
 const AddTaskModal = ({ isOpen, onClose, onSubmit }) => {
@@ -13,13 +12,12 @@ const AddTaskModal = ({ isOpen, onClose, onSubmit }) => {
       return;
     }
     onSubmit(title);
-    setTitle(''); // Reset for next time
+    setTitle(''); 
   };
 
   return (
-    // Backdrop
+    
     <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-center">
-      {/* Modal */}
       <div className="bg-white rounded-lg shadow-2xl p-6 w-full max-w-lg z-50">
         <h2 className="text-2xl font-bold mb-4">Add a New Task</h2>
         <form onSubmit={handleSubmit}>

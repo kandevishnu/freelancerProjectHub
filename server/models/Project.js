@@ -1,4 +1,3 @@
-// models/Project.js
 import mongoose from 'mongoose';
 
 const ProjectSchema = new mongoose.Schema(
@@ -29,7 +28,7 @@ const ProjectSchema = new mongoose.Schema(
     freelancer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      default: null, // A project doesn't have a freelancer until a proposal is accepted
+      default: null, 
     },
   },
   { timestamps: true }

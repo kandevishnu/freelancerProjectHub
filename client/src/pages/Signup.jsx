@@ -1,4 +1,3 @@
-// src/pages/Signup.jsx
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
@@ -27,7 +26,6 @@ const Signup = () => {
     setError("");
 
     try {
-      // Use the relative path for the API call
       const res = await axios.post("/api/auth/register", form);
       const { token, user } = res.data;
 
@@ -35,7 +33,6 @@ const Signup = () => {
 
       toast.success("✅ Registration successful!");
 
-      // Navigate to the central dashboard for role-based redirection
       navigate("/dashboard");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
@@ -93,7 +90,6 @@ const Signup = () => {
               className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none transition-colors duration-200"
             >
               {showPassword ? (
-                // SVG for eye-slash icon
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -114,7 +110,6 @@ const Signup = () => {
                   />
                 </svg>
               ) : (
-                // SVG for eye icon
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -157,7 +152,6 @@ const Signup = () => {
 
         <p className="mt-6 text-center text-gray-500">
           Already have an account?{" "}
-          {/* Use the Link component for internal navigation */}
           <Link
             to="/login"
             className="text-blue-600 hover:text-blue-700 font-medium transition-colors cursor-pointer duration-200"

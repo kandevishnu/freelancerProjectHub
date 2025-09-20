@@ -1,4 +1,3 @@
-// src/components/TaskBoard.jsx
 import React from 'react';
 
 const TaskCard = ({ task, onStatusChange }) => (
@@ -27,19 +26,15 @@ const TaskBoard = ({ tasks, onStatusChange }) => {
 
   return (
     <div className="mt-8">
-      <h2 className="text-2xl font-bold mb-4">Task Board</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Todo Column */}
         <div className="bg-white p-4 rounded-lg shadow">
           <h3 className="font-bold text-lg mb-3 border-b pb-2">📋 Todo</h3>
           {columns.todo.map(task => <TaskCard key={task._id} task={task} onStatusChange={onStatusChange} />)}
         </div>
-        {/* In Progress Column */}
         <div className="bg-white p-4 rounded-lg shadow">
           <h3 className="font-bold text-lg mb-3 border-b pb-2">⏳ In Progress</h3>
           {columns['in-progress'].map(task => <TaskCard key={task._id} task={task} onStatusChange={onStatusChange} />)}
         </div>
-        {/* Done Column */}
         <div className="bg-white p-4 rounded-lg shadow">
           <h3 className="font-bold text-lg mb-3 border-b pb-2">✅ Done</h3>
           {columns.done.map(task => <TaskCard key={task._id} task={task} onStatusChange={onStatusChange} />)}

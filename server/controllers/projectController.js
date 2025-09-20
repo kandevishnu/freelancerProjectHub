@@ -1,19 +1,29 @@
-// controllers/projectController.js
 import Project from '../models/Project.js';
+import Post from '../models/Post.js';
 
 export const createProject = async (req, res) => {
   try {
     const { title, description, budget } = req.body;
 
-    // The authMiddleware provides the logged-in user's info on req.user
     const project = new Project({
       title,
       description,
       budget,
-      client: req.user._id, // Assign the project to the logged-in client
+      client: req.user._id,
     });
-
     await project.save();
+
+    const jobPost = new Post({
+      author: req.user._id,
+      postType: 'job',
+      project: project._id, 
+      content: {
+        jobTitle: project.title,
+        jobDescription: project.description,
+        jobBudget: project.budget,
+      },
+    });
+    await jobPost.save();
 
     res.status(201).json(project);
   } catch (err) {
@@ -24,9 +34,6 @@ export const createProject = async (req, res) => {
 
 export const getOpenProjects = async (req, res) => {
   try {
-    // Find projects with status 'open'
-    // Populate client info, but only select their name and profile picture
-    // Sort by newest first
     const projects = await Project.find({ status: 'open' })
       .populate('client', 'name profilePictureUrl')
       .sort({ createdAt: -1 });
@@ -51,7 +58,6 @@ export const getProjectById = async (req, res) => {
     res.json(project);
   } catch (err) {
     console.error('Get project by ID error:', err.message);
-    // If the ID format is invalid, it might throw an error
     if (err.kind === 'ObjectId') {
         return res.status(404).json({ msg: 'Project not found' });
     }
@@ -61,7 +67,6 @@ export const getProjectById = async (req, res) => {
 
 export const getMyProjects = async (req, res) => {
   try {
-    // Find projects where the logged-in user is either the client or the freelancer
     const projects = await Project.find({
       $or: [{ client: req.user._id }, { freelancer: req.user._id }],
     })

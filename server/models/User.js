@@ -5,14 +5,18 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, lowercase: true },
   passwordHash: { type: String, required: true },
   role: { type: String, enum: ['client', 'freelancer'], required: true },
-  profilePictureUrl: { type: String, default: '' },
+  
+  tagline: { type: String, default: '', trim: true }, 
   bio: { type: String, default: '' },
-  skills: { type: [String], default: [] }
+  profilePictureUrl: { type: String, default: '' },
+  location: { type: String, default: '', trim: true }, 
+  website: { type: String, default: '', trim: true },
+  
+  skills: { type: [String], default: [] },
+  averageRating: { type: Number, default: 0 },
+  totalReviews: { type: Number, default: 0 },
+
 }, { timestamps: true });
 
-UserSchema.methods.toSafeJSON = function () {
-  const { _id, name, email, role, profilePictureUrl, bio, skills, createdAt, updatedAt } = this.toObject();
-  return { _id, name, email, role, profilePictureUrl, bio, skills, createdAt, updatedAt };
-};
 
 export default mongoose.model('User', UserSchema);

@@ -20,24 +20,19 @@ export const AuthProvider = ({ children }) => {
     const storedToken = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
 
-    // 1. Be Optimistic: Load local data first for a fast UI
     if (storedToken && storedUser) {
       setToken(storedToken);
       setUser(JSON.parse(storedUser));
       setAxiosAuthToken(storedToken);
     }
 
-    // 2. Verify in the background
     try {
-      // If a token exists, try to verify it
       if (storedToken) {
         const res = await axios.get("/api/auth/me");
-        // 3a. Success: Silently update with fresh data
         setUser(res.data);
         localStorage.setItem("user", JSON.stringify(res.data));
       }
     } catch (err) {
-      // 3b. Failure: The optimistic state was wrong. Log the user out.
       console.error("Auth verification failed:", err?.response?.data || err.message);
       setUser(null);
       setToken("");
@@ -45,7 +40,6 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem("user");
       setAxiosAuthToken(null);
     } finally {
-      // We are done checking, so stop the loading state.
       setLoading(false);
     }
   };

@@ -1,14 +1,11 @@
-// src/services/api.js
 import axios from 'axios';
 
-// We can create a reusable error handler
 const handleError = (error) => {
   const message = error.response?.data?.error || error.response?.data?.message || error.message;
   console.error("API Error:", message);
   throw new Error(message);
 };
 
-// --- Project API Calls ---
 
 export const createProject = async (projectData) => {
   try {
@@ -36,8 +33,6 @@ export const getProjectById = async (projectId) => {
     handleError(error);
   }
 };
-
-// --- Proposal API Calls ---
 
 export const submitProposal = async (projectId, proposalData) => {
   try {
@@ -75,7 +70,6 @@ export const getMyProjects = async () => {
   }
 };
 
-// --- Task API Calls ---
 
 export const getTasksForProject = async (projectId) => {
   try {
@@ -104,7 +98,6 @@ export const updateTaskStatus = async (projectId, taskId, status) => {
   }
 };
 
-// --- Deliverable API Calls ---
 
 export const getDeliverablesForProject = async (projectId) => {
   try {
@@ -117,12 +110,9 @@ export const getDeliverablesForProject = async (projectId) => {
 
 export const uploadDeliverable = async (projectId, formData) => {
   try {
-    // For file uploads, it's safest to manually construct the headers
-    // to ensure both Content-Type and Authorization are present.
     const config = {
       headers: {
         'Content-Type': 'multipart/form-data',
-        // The Authorization header was missing. It's added here.
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
       },
     };
@@ -131,4 +121,246 @@ export const uploadDeliverable = async (projectId, formData) => {
   } catch (error) {
     handleError(error);
   }
+};
+
+export const getMessages = async (projectId) => {
+  try {
+    const res = await axios.get(`/api/projects/${projectId}/messages`);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const createPost = async (postData) => {
+  try {
+    const res = await axios.post('/api/posts', postData);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getAllPosts = async () => {
+  try {
+    const res = await axios.get('/api/posts');
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const likePost = async (postId) => {
+  try {
+    const res = await axios.post(`/api/posts/${postId}/like`);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const addComment = async (postId, commentData) => {
+  try {
+    const res = await axios.post(`/api/posts/${postId}/comment`, commentData);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getUserProfile = async (userId) => {
+  try {
+    const res = await axios.get(`/api/users/${userId}`);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const sendConnectionRequest = async (userId) => {
+  try {
+    const res = await axios.post(`/api/users/${userId}/connect`);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getPendingRequests = async () => {
+  try {
+    const res = await axios.get('/api/connections/pending');
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const respondToRequest = async (connectionId, status) => {
+  try {
+    const res = await axios.patch(`/api/connections/${connectionId}`, { status });
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getConnectionStatus = async (userId) => {
+  try {
+    const res = await axios.get(`/api/users/${userId}/connection-status`);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getMyProposals = async () => {
+  try {
+    const res = await axios.get('/api/proposals/my');
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const searchAll = async (query) => {
+  try {
+    const res = await axios.get(`/api/search?q=${encodeURIComponent(query)}`);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const startConversation = async (recipientId) => {
+  try {
+    const res = await axios.post('/api/conversations', { recipientId });
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getConversations = async () => {
+  try {
+    const res = await axios.get('/api/conversations');
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getMessagesForConversation = async (conversationId) => {
+  try {
+    const res = await axios.get(`/api/conversations/${conversationId}/messages`);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const sendDirectMessage = async (conversationId, content) => {
+    try {
+        const res = await axios.post(`/api/conversations/${conversationId}/messages`, { content });
+        return res.data;
+    } catch (error) {
+        handleError(error);
+    }
+};
+
+export const getMyConnections = async () => {
+  try {
+    const res = await axios.get('/api/connections');
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getNotifications = async () => {
+  try {
+    const res = await axios.get('/api/notifications');
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const markNotificationsAsRead = async () => {
+  try {
+    const res = await axios.patch('/api/notifications/read');
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getUnreadNotificationCount = async () => {
+  try {
+      const res = await axios.get('/api/notifications/unread-count');
+      return res.data;
+  } catch (error) {
+      handleError(error);
+  }
+};
+export const getProjectMessages = async (projectId) => {
+  try {
+    const res = await axios.get(`/api/projects/${projectId}/project-messages`);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getReviewsForUser = async (userId) => {
+  try {
+    const res = await axios.get(`/api/users/${userId}/reviews`);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const createReview = async (projectId, reviewData) => {
+  try {
+    const res = await axios.post(`/api/projects/${projectId}/reviews`, reviewData);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getInvoiceForProject = async (projectId) => {
+  try {
+    const res = await axios.get(`/api/projects/${projectId}/invoices`);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const createInvoice = async (projectId, invoiceData) => {
+  try {
+    const res = await axios.post(`/api/projects/${projectId}/invoices`, invoiceData);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const createStripePaymentIntent = async (invoiceId) => {
+  try {
+    const res = await axios.post('/api/payments/create-payment-intent', { invoiceId });
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const verifyPayment = async (paymentData) => {
+    try {
+        const res = await axios.post('/api/payments/verify', paymentData);
+        return res.data;
+    } catch (error) {
+        handleError(error);
+    }
 };

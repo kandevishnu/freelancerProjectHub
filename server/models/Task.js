@@ -1,4 +1,3 @@
-// models/Task.js
 import mongoose from 'mongoose';
 
 const TaskSchema = new mongoose.Schema(
@@ -18,7 +17,6 @@ const TaskSchema = new mongoose.Schema(
       enum: ['todo', 'in-progress', 'done'],
       default: 'todo',
     },
-    // Can be assigned to either the client or freelancer
     assigned_to: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

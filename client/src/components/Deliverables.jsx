@@ -49,7 +49,6 @@ const Deliverables = ({ project }) => {
     try {
       await uploadDeliverable(project._id, formData);
       toast.success('Deliverable uploaded successfully!');
-      // Reset form and refresh list
       setFile(null);
       setDescription('');
       if(document.getElementById('file-input')) {
@@ -70,7 +69,6 @@ const Deliverables = ({ project }) => {
     <div className="mt-8">
       <h2 className="text-2xl font-bold mb-4">Deliverables</h2>
       <div className="bg-white p-6 rounded-lg shadow">
-        {/* Upload Form for the assigned freelancer */}
         {isFreelancer && (
           <form onSubmit={handleSubmit} className="mb-6 border-b pb-6">
             <h3 className="text-lg font-semibold mb-2">Submit New Deliverable</h3>
@@ -96,7 +94,6 @@ const Deliverables = ({ project }) => {
           </form>
         )}
 
-        {/* List of Deliverables */}
         {loading ? (
           <p>Loading deliverables...</p>
         ) : deliverables.length === 0 ? (

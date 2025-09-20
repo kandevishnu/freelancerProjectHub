@@ -1,8 +1,8 @@
-// src/pages/CreateProject.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { createProject } from '../services/api';
+import { PlusCircle } from 'lucide-react';
 
 const CreateProject = () => {
   const [formData, setFormData] = useState({
@@ -28,26 +28,30 @@ const CreateProject = () => {
     }
     setIsSubmitting(true);
     try {
-      // Use the API service function to create the project
       await createProject({
         ...formData,
-        budget: Number(formData.budget)
+        budget: Number(formData.budget),
       });
-      toast.success('Project created successfully!');
-      navigate('/client'); // Redirect to the client dashboard on success
+      toast.success('Project posted successfully!');
+      navigate('/client'); 
     } catch (err) {
       toast.error(err.message || 'Failed to create project.');
+    } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-      <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold mb-6">Create a New Project</h1>
+    <div className="max-w-3xl mx-auto">
+      <div className="bg-white rounded-lg shadow-md p-8">
+        <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900">Post a New Project</h1>
+            <p className="text-gray-600 mt-2">Fill out the details below to attract the best freelancers.</p>
+        </div>
+        
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="title" className="block text-lg font-medium text-gray-700">
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
               Project Title
             </label>
             <input
@@ -56,13 +60,13 @@ const CreateProject = () => {
               name="title"
               value={formData.title}
               onChange={handleChange}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              placeholder="e.g., Modern Logo Design for Startup"
+              className="block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-lg"
+              placeholder="e.g., Modern Logo Design for Tech Startup"
               required
             />
           </div>
           <div>
-            <label htmlFor="description" className="block text-lg font-medium text-gray-700">
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
               Project Description
             </label>
             <textarea
@@ -70,34 +74,37 @@ const CreateProject = () => {
               name="description"
               value={formData.description}
               onChange={handleChange}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              rows="6"
-              placeholder="Describe your project in detail. What are the requirements and deliverables?"
+              className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-base"
+              rows="8"
+              placeholder="Describe your project in detail. What are the main goals, requirements, and deliverables?"
               required
             ></textarea>
           </div>
           <div>
-            <label htmlFor="budget" className="block text-lg font-medium text-gray-700">
-              Budget ($)
+            <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-1">
+              Budget (in Rupees)
             </label>
-            <input
-              type="number"
-              id="budget"
-              name="budget"
-              value={formData.budget}
-              onChange={handleChange}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              placeholder="e.g., 1000"
-              required
-            />
+            <div className="relative">
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 text-lg">₹</span>
+                <input
+                type="number"
+                id="budget"
+                name="budget"
+                value={formData.budget}
+                onChange={handleChange}
+                className="pl-7 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-lg"
+                placeholder="e.g., 1500"
+                required
+                />
+            </div>
           </div>
-          <div>
+          <div className="pt-4">
             <button
               type="submit"
               disabled={isSubmitting}
               className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400"
             >
-              {isSubmitting ? 'Posting Project...' : 'Post Project'}
+              {isSubmitting ? 'Posting...' : 'Post Your Project'}
             </button>
           </div>
         </form>

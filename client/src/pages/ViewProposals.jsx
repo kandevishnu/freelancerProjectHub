@@ -1,8 +1,8 @@
-// src/pages/ViewProposals.jsx
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { getProposalsForProject, updateProposalStatus, getProjectById } from '../services/api';
+import { Check, X } from 'lucide-react';
 
 const ViewProposals = () => {
   const [proposals, setProposals] = useState([]);
@@ -15,9 +15,10 @@ const ViewProposals = () => {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      // Fetch both project details and proposals
-      const projectData = await getProjectById(projectId);
-      const proposalsData = await getProposalsForProject(projectId);
+      const [projectData, proposalsData] = await Promise.all([
+        getProjectById(projectId),
+        getProposalsForProject(projectId)
+      ]);
       setProject(projectData);
       setProposals(proposalsData);
     } catch (err) {
@@ -32,12 +33,11 @@ const ViewProposals = () => {
     fetchData();
   }, [fetchData]);
 
-  const handleUpdateStatus = async (proposalId, status) => {
+  const handleResponse = async (proposalId, status) => {
     try {
       await updateProposalStatus(proposalId, status);
       toast.success(`Proposal has been ${status}!`);
-      // Redirect to the dashboard to see the updated project status
-      navigate('/client');
+      navigate('/client'); 
     } catch (err) {
       toast.error(err.message || 'Failed to update proposal.');
     }
@@ -47,15 +47,16 @@ const ViewProposals = () => {
   if (error) return <div className="text-center p-10 text-red-500">{error}</div>;
 
   return (
-    <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-      <h1 className="text-3xl font-bold mb-2">Proposals for "{project?.title}"</h1>
-      <p className="text-gray-600 mb-8">
-        Review the proposals below and choose the best freelancer for your project.
-      </p>
+    <div className="max-w-4xl mx-auto">
+      <div className="mb-8">
+        <p className="text-gray-500">Proposals for project:</p>
+        <h1 className="text-3xl font-bold">{project?.title}</h1>
+      </div>
 
       {proposals.length === 0 ? (
-        <div className="bg-white p-6 rounded-lg shadow-md text-center">
-          <p>No proposals have been submitted for this project yet.</p>
+        <div className="bg-white p-8 rounded-lg shadow-md text-center">
+          <h2 className="text-xl font-semibold">No Proposals Yet</h2>
+          <p className="text-gray-500 mt-2">Check back later to see submissions from freelancers.</p>
         </div>
       ) : (
         <div className="space-y-6">
@@ -63,7 +64,7 @@ const ViewProposals = () => {
             <ProposalCard
               key={proposal._id}
               proposal={proposal}
-              onUpdateStatus={handleUpdateStatus}
+              onRespond={handleResponse}
               isProjectOpen={project?.status === 'open'}
             />
           ))}
@@ -73,33 +74,37 @@ const ViewProposals = () => {
   );
 };
 
-// Sub-component for displaying a single proposal
-const ProposalCard = ({ proposal, onUpdateStatus, isProjectOpen }) => {
+const ProposalCard = ({ proposal, onRespond, isProjectOpen }) => {
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <div className="flex justify-between items-start">
-        <div>
-          <h3 className="text-xl font-bold">{proposal.freelancer.name}</h3>
-          <p className="text-sm text-gray-500">{proposal.freelancer.email}</p>
+    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="p-6">
+        <div className="flex justify-between items-start">
+            <div>
+                <Link to={`/profile/${proposal.freelancer._id}`} className="text-xl font-bold text-gray-900 hover:text-blue-600">
+                    {proposal.freelancer.name}
+                </Link>
+                <p className="text-sm text-gray-500">Submitted a proposal</p>
+            </div>
+            <span className="text-2xl font-bold text-green-600">${proposal.bidAmount}</span>
         </div>
-        <span className="text-2xl font-bold text-green-600">${proposal.bidAmount}</span>
+        <div className="prose prose-sm max-w-none mt-4 text-gray-700">
+            <p>{proposal.coverLetter}</p>
+        </div>
       </div>
-      <p className="my-4 text-gray-700">{proposal.coverLetter}</p>
       
-      {/* Show buttons only if the project is still open */}
       {isProjectOpen && (
-        <div className="flex justify-end gap-4 mt-4">
+        <div className="bg-gray-50 px-6 py-4 flex justify-end gap-4">
           <button
-            onClick={() => onUpdateStatus(proposal._id, 'rejected')}
-            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+            onClick={() => onRespond(proposal._id, 'declined')}
+            className="flex items-center gap-2 bg-white border border-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg hover:bg-gray-100"
           >
-            Reject
+            <X size={18} /> Decline
           </button>
           <button
-            onClick={() => onUpdateStatus(proposal._id, 'accepted')}
-            className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+            onClick={() => onRespond(proposal._id, 'accepted')}
+            className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg"
           >
-            Accept
+            <Check size={18} /> Accept & Hire
           </button>
         </div>
       )}

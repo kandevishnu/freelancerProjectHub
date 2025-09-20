@@ -1,8 +1,6 @@
-// src/pages/Marketplace.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getOpenProjects } from '../services/api'; // Import our new API function
-
+import { getOpenProjects } from '../services/api'; 
 const Marketplace = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,8 +21,7 @@ const Marketplace = () => {
     };
 
     fetchProjects();
-  }, []); // The empty array ensures this runs only once on mount
-
+  }, []);
   if (loading) {
     return <div className="text-center p-10">Loading projects...</div>;
   }
@@ -49,11 +46,10 @@ const Marketplace = () => {
   );
 };
 
-// A sub-component for displaying a single project
 const ProjectCard = ({ project }) => {
   return (
     <Link
-      to={`/project/${project._id}`} // This will link to the project detail page we build next
+      to={`/project/${project._id}`}
       className="block bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6"
     >
       <h2 className="text-xl font-bold text-blue-600 mb-2">{project.title}</h2>

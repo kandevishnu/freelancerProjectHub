@@ -1,4 +1,3 @@
-// src/pages/Login.jsx
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
@@ -9,13 +8,12 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const { login } = useAuth(); // Correctly use the login function from context
+  const { login } = useAuth(); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      // Use the relative path for the API call
       const res = await axios.post("/api/auth/login", {
         email,
         password,
@@ -23,13 +21,11 @@ const Login = () => {
 
       const { token, user } = res.data;
 
-      // Use the context function to handle login state
       login({ token, user });
 
       toast.success("✅ Login successful!");
 
-      // Navigate to the central dashboard for role-based redirection
-      navigate("/dashboard");
+      navigate("/home");
     } catch (err) {
       toast.error(err.response?.data?.message || "❌ Invalid credentials");
     }
@@ -65,7 +61,6 @@ const Login = () => {
         </form>
         <p className="text-center text-sm text-gray-600 mt-4">
           Don’t have an account?{" "}
-          {/* Use the Link component for internal navigation */}
           <Link
             to="/signup"
             className="text-blue-600 hover:underline cursor-pointer"

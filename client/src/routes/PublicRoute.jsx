@@ -1,4 +1,3 @@
-// src/routes/PublicRoute.jsx
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -14,13 +13,10 @@ const PublicRoute = ({ children }) => {
     );
   }
 
-  // If the user is logged in, redirect them away from the public page
-  // to the central dashboard.
   if (user) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/home" replace />;
   }
 
-  // If the user is not logged in, show the public page.
   return children;
 };
 
