@@ -25,15 +25,7 @@ export const register = async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    return res.status(201).json({
-      token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
+    return res.status(201).json({ token, user });
   } catch (err) {
     console.error("Register error:", err);
     return res.status(500).json({ message: "Server error" });
@@ -68,15 +60,7 @@ export const login = async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    return res.json({
-      token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
+    return res.json({ token, user });
   } catch (err) {
     console.error("Login error:", err);
     return res.status(500).json({ message: "Server error" });
@@ -89,12 +73,7 @@ export const me = async (req, res) => {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    res.json({
-      _id: req.user._id,
-      name: req.user.name,
-      email: req.user.email,
-      role: req.user.role,
-    });
+    res.json(req.user);
   } catch (err) {
     console.error("Me route error:", err.message);
     res.status(500).json({ error: "Server error" });

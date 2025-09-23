@@ -41,19 +41,20 @@ export const respondToRequest = async (req, res) => {
 
     request.status = status;
     await request.save();
+
     if (status === 'accepted') {
         const notification = new Notification({
-            recipient: request.requester, 
-            sender: recipient._id,
+            recipient: request.requester,
+            sender: req.user._id,
             type: 'connection_accepted',
-            link: `/profile/${recipient._id}`,
+            link: `/profile/${req.user._id}`,
         });
         await notification.save();
 
         const io = getIO();
-        io.to(request.requester.toString()).emit('newNotification', { message: `${recipient.name} accepted your connection request.` });
+        io.to(request.requester.toString()).emit('newNotification', { message: `${req.user.name} accepted your connection request.` });
     }
-
+    
     res.json(request);
   } catch (err) {
     console.error("Respond to request error:", err.message);

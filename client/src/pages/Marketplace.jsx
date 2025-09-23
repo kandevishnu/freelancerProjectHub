@@ -55,7 +55,7 @@ const ProjectCard = ({ project }) => {
       <h2 className="text-xl font-bold text-blue-600 mb-2">{project.title}</h2>
       <p className="text-gray-600 mb-4 line-clamp-3">{project.description}</p>
       <div className="flex justify-between items-center text-sm">
-        <span className="font-semibold text-green-600">Budget: ${project.budget}</span>
+        <span className="font-semibold text-green-600">Budget: ₹{project.budget}</span>
         <span className="text-gray-500">
           Posted by: {project.client?.name || 'N/A'}
         </span>

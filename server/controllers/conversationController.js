@@ -83,22 +83,21 @@ export const sendMessage = async (req, res) => {
             return res.status(403).json({ error: 'Forbidden: You are not a participant.' });
         }
 
-        const message = new DirectMessage({
-            conversationId,
-            sender: senderId,
-            content,
-        });
+        const message = new DirectMessage({ conversationId, sender: senderId, content });
         await message.save();
 
         conversation.updatedAt = Date.now();
         await conversation.save();
 
-        const populatedMessage = await DirectMessage.findById(message._id)
-            .populate('sender', 'name profilePictureUrl');
-
+        const populatedMessage = await DirectMessage.findById(message._id).populate('sender', 'name profilePictureUrl');
+        
         const io = getIO();
         io.to(conversationId).emit('newDirectMessage', populatedMessage);
         
+        const recipient = conversation.participants.find(p => !p.equals(senderId));
+        if (recipient) {
+            io.to(recipient.toString()).emit('newMessageNotification');
+        }
         res.status(201).json(populatedMessage);
     } catch (err) {
         console.error("Send message error:", err.message);

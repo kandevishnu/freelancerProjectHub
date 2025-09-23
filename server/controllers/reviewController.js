@@ -59,3 +59,14 @@ export const createReview = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+
+export const checkUserReview = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const reviewerId = req.user._id;
+    const existingReview = await Review.findOne({ project: projectId, reviewer: reviewerId });
+    res.json({ hasReviewed: !!existingReview });
+  } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
+};

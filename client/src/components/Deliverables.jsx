@@ -104,7 +104,7 @@ const Deliverables = ({ project }) => {
               <div key={item._id} className="flex justify-between items-center p-3 bg-gray-50 rounded-md">
                 <div>
                   <a
-                    href={`${backendUrl}/${item.fileUrl.replace(/\\/g, '/')}`}
+                    href={item.fileUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-medium text-blue-600 hover:underline"

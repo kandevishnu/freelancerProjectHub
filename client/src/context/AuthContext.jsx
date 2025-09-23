@@ -64,9 +64,14 @@ export const AuthProvider = ({ children }) => {
     setAxiosAuthToken(null);
   };
 
+  const updateUser = (newUserData) => {
+    setUser(newUserData);
+    localStorage.setItem("user", JSON.stringify(newUserData));
+  };
+
   return (
     <AuthContext.Provider
-      value={{ user, token, loading, login, logout, setUser }}
+      value={{ user, token, loading, login, logout, setUser, updateUser }}
     >
       {children}
     </AuthContext.Provider>

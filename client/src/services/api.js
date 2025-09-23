@@ -1,6 +1,12 @@
 import axios from 'axios';
 
 const handleError = (error) => {
+  const detailedError = error.response?.data?.details;
+  if (detailedError) {
+      console.error("API Error Details:", detailedError);
+      throw new Error(detailedError); 
+  }
+  
   const message = error.response?.data?.error || error.response?.data?.message || error.message;
   console.error("API Error:", message);
   throw new Error(message);
@@ -363,4 +369,103 @@ export const verifyPayment = async (paymentData) => {
     } catch (error) {
         handleError(error);
     }
+};
+
+export const changePassword = async (passwordData) => {
+  try {
+    const res = await axios.patch('/api/users/me/change-password', passwordData);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const deleteAccount = async () => {
+  try {
+    const res = await axios.delete('/api/users/me');
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const updateMe = async (userData) => {
+  try {
+    const res = await axios.patch('/api/users/me', userData);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getExperienceForUser = async (userId) => {
+  try {
+    const res = await axios.get(`/api/experience/user/${userId}`);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const addExperience = async (experienceData) => {
+  try {
+    const res = await axios.post('/api/experience', experienceData);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const deleteExperience = async (id) => {
+  try {
+    const res = await axios.delete(`/api/experience/${id}`);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getEducationForUser = async (userId) => {
+  try {
+    const res = await axios.get(`/api/education/user/${userId}`);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const addEducation = async (educationData) => {
+  try {
+    const res = await axios.post('/api/education', educationData);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const deleteEducation = async (id) => {
+  try {
+    const res = await axios.delete(`/api/education/${id}`);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const uploadProfilePicture = async (formData) => {
+  try {
+    const res = await axios.post('/api/users/me/avatar', formData);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const checkUserReview = async (projectId) => {
+  try {
+    const res = await axios.get(`/api/projects/${projectId}/reviews/me`);
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
 };

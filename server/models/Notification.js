@@ -22,6 +22,7 @@ const NotificationSchema = new mongoose.Schema(
        'new_proposal',
        'new_invoice',
        'invoice_paid',
+       'new_post', 
      ],
       required: true,
     },

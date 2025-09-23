@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { getAllPosts, getMyConnections } from '../services/api'; 
 import PostCard from '../components/PostCard.jsx';
 import CreatePost from '../components/CreatePost.jsx';
+import { Search } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const HomeFeed = () => {
   const [posts, setPosts] = useState([]);
@@ -10,6 +12,8 @@ const HomeFeed = () => {
   const [error, setError] = useState(null);
 
   const [connections, setConnections] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,12 +40,23 @@ const HomeFeed = () => {
     setPosts([newPost, ...posts]);
   };
 
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      navigate(`/search?q=${searchTerm.trim()}`);
+    }
+  };
+
   if (loading) return <div className="text-center p-10">Loading feed...</div>;
   if (error) return <div className="text-center p-10 text-red-500">{error}</div>;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
       <div className="lg:col-span-8">
+        <form onSubmit={handleSearchSubmit} className="relative lg:hidden mb-6">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+            <input type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 text-sm" />
+        </form>
         <CreatePost onPostCreated={handleNewPost} />
         {posts.length === 0 ? (
           <p className="text-center text-gray-500 mt-8">The feed is empty. Be the first to post!</p>

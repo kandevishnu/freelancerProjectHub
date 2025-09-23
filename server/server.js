@@ -26,6 +26,9 @@ import projectReviewRoutes from './routes/projectReviewRoutes.js';
 import userReviewRoutes from './routes/userReviewRoutes.js'; 
 import { invoiceRouter, projectInvoiceRouter } from './routes/invoiceRoutes.js'; 
 import stripeRoutes from './routes/stripeRoutes.js';
+import experienceRoutes from './routes/experienceRoutes.js';
+import educationRoutes from './routes/educationRoutes.js';
+import upload from './config/cloudinary.js';
 
 dotenv.config();
 console.log('Stripe Secret Key Loaded:', process.env.STRIPE_SECRET_KEY); 
@@ -63,11 +66,16 @@ app.use('/api/users/:userId/reviews', userReviewRoutes);
 app.use('/api/projects/:projectId/invoices', projectInvoiceRouter);
 app.use('/api/invoices', invoiceRouter);
 app.use('/api/payments', stripeRoutes);
+app.use('/api/experience', experienceRoutes);
+app.use('/api/education', educationRoutes);
 
 app.get("/", (req, res) => res.send("API is running..."));
 
 const server = http.createServer(app);
 initSocket(server);
+
+console.log("--- SERVER STARTING UP - LOOK IN THIS TERMINAL FOR ERRORS ---");
+
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

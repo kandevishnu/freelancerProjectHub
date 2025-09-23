@@ -1,7 +1,7 @@
 import express from 'express';
 import { getDeliverablesForProject, uploadDeliverable } from '../controllers/deliverableController.js';
 import auth from '../middleware/authMiddleware.js';
-import upload from '../config/upload.js';
+import upload from '../config/cloudinary.js';
 
 const router = express.Router({ mergeParams: true });
 

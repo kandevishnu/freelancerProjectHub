@@ -8,6 +8,12 @@ export const createPost = async (req, res) => {
     const { postType, content } = req.body;
     const author = req.user;
 
+    let hashtags = [];
+    if (content.text) {
+      const regex = /#(\w+)/g;
+      hashtags = content.text.match(regex)?.map(tag => tag.substring(1).toLowerCase()) || [];
+    }
+
     if (!postType || !content) {
       return res
         .status(400)
@@ -18,6 +24,7 @@ export const createPost = async (req, res) => {
       author: author._id,
       postType,
       content,
+      hashtags,
     });
     await newPost.save();
 

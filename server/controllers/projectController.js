@@ -1,5 +1,6 @@
 import Project from '../models/Project.js';
 import Post from '../models/Post.js';
+import Invoice from '../models/Invoice.js';
 
 export const createProject = async (req, res) => {
   try {
@@ -55,7 +56,14 @@ export const getProjectById = async (req, res) => {
       return res.status(404).json({ msg: 'Project not found' });
     }
 
-    res.json(project);
+    const projectObject = project.toObject();
+
+    const invoice = await Invoice.findOne({ project: project._id });
+
+    projectObject.invoice = invoice;
+
+    res.json(projectObject);
+
   } catch (err) {
     console.error('Get project by ID error:', err.message);
     if (err.kind === 'ObjectId') {

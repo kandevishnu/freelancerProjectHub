@@ -16,7 +16,14 @@ const UserSchema = new mongoose.Schema({
   averageRating: { type: Number, default: 0 },
   totalReviews: { type: Number, default: 0 },
 
-}, { timestamps: true });
+}, { 
+    timestamps: true 
+});
 
+UserSchema.methods.toJSON = function() {
+  const user = this.toObject();
+  delete user.passwordHash;
+  return user;
+}
 
 export default mongoose.model('User', UserSchema);

@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { createPost } from '../services/api';
 import { toast } from 'react-toastify';
+import { useEffect } from 'react';
 
 const CreatePost = ({ onPostCreated }) => {
   const [text, setText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!text.trim()) {
@@ -34,9 +35,14 @@ const CreatePost = ({ onPostCreated }) => {
   return (
     <div className="bg-white rounded-lg shadow-md p-5 mb-6">
       <div className="flex items-start gap-4">
-        <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600 flex-shrink-0">
-          {user?.name.charAt(0)}
-        </div>
+        {user?.profilePictureUrl ? (
+          <img src={user.profilePictureUrl} alt={user.name} className="w-12 h-12 rounded-full object-cover flex-shrink-0" />
+        ) : (
+          <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600 flex-shrink-0">
+            {user?.name.charAt(0)}
+          </div>
+        )}
+        
         <form onSubmit={handleSubmit} className="w-full">
           <textarea
             value={text}

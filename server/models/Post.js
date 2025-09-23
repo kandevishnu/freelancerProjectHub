@@ -23,6 +23,10 @@ const PostSchema = new mongoose.Schema(
       jobDescription: { type: String },
       jobBudget: { type: Number },
     },
+    hashtags: { 
+    type: [String], 
+    index: true 
+  },
     likes: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'

@@ -95,6 +95,7 @@ export const updateProposalStatus = async (req, res) => {
       await Project.findByIdAndUpdate(proposal.project._id, {
         status: 'in-progress',
         freelancer: proposal.freelancer,
+        budget: proposal.bidAmount,
       });
 
       await Proposal.updateMany(

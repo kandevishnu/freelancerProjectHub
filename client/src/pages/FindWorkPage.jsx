@@ -65,7 +65,7 @@ const JobCard = ({ project }) => (
     <div className="mt-4 border-t pt-4 flex flex-col sm:flex-row gap-4 text-gray-600 text-sm">
       <div className="flex items-center gap-2">
         <DollarSign size={16} />
-        <span>Budget: ${project.budget}</span>
+        <span>Budget: ₹{project.budget}</span>
       </div>
       <div className="flex items-center gap-2">
         <Clock size={16} />

@@ -36,7 +36,7 @@ const ViewProposals = () => {
   const handleResponse = async (proposalId, status) => {
     try {
       await updateProposalStatus(proposalId, status);
-      toast.success(`Proposal has been ${status}!`);
+      toast.success(`Proposal has been ₹{status}!`);
       navigate('/client'); 
     } catch (err) {
       toast.error(err.message || 'Failed to update proposal.');
