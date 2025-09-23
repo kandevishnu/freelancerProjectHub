@@ -36,7 +36,7 @@ const ViewProposals = () => {
   const handleResponse = async (proposalId, status) => {
     try {
       await updateProposalStatus(proposalId, status);
-      toast.success(`Proposal has been ₹{status}!`);
+      toast.success(`Proposal has been ${status}!`);
       navigate('/client'); 
     } catch (err) {
       toast.error(err.message || 'Failed to update proposal.');
@@ -87,7 +87,7 @@ const ProposalCard = ({ proposal, onRespond, isProjectOpen }) => {
             </div>
             <span className="text-2xl font-bold text-green-600">${proposal.bidAmount}</span>
         </div>
-        <div className="prose prose-sm max-w-none mt-4 text-gray-700">
+        <div className="prose prose-sm max-w-none mt-4 text-gray-700 whitespace-pre-wrap">
             <p>{proposal.coverLetter}</p>
         </div>
       </div>

@@ -24,6 +24,8 @@ import ProposalModal from "../components/ProposalModal.jsx";
 import { MessageSquare, Clock, DollarSign, FileText, ListTodo, Briefcase, CheckCircle, LoaderCircle, Star } from "lucide-react";
 import { motion } from 'framer-motion';
 
+// --- HELPER COMPONENTS ---
+
 const LeaveReviewForm = ({ project, onReviewSubmit }) => {
     const [rating, setRating] = useState(5);
     const [comment, setComment] = useState("");
@@ -59,11 +61,11 @@ const LeaveReviewForm = ({ project, onReviewSubmit }) => {
     );
 };
 
-const DisplayReview = ({ review }) => {
+const ReviewDisplayCard = ({ title, review }) => {
     if (!review) return null;
     return (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h3 className="font-bold text-xl mb-2">Your Submitted Review</h3>
+        <div className="bg-white rounded-lg shadow-md p-6 mb-4">
+            <h3 className="font-bold text-xl mb-2">{title}</h3>
             <div className="flex items-center my-2">
                 {[...Array(5)].map((_, i) => (
                     <Star key={i} size={20} className={i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'} />
@@ -73,6 +75,9 @@ const DisplayReview = ({ review }) => {
         </div>
     );
 };
+
+
+// --- MAIN PAGE COMPONENT ---
 
 const ProjectDetail = () => {
   const [project, setProject] = useState(null);
@@ -97,17 +102,19 @@ const ProjectDetail = () => {
       setProject(projectData);
 
       const isParticipant = user && (user._id === projectData.client._id || user._id === projectData.freelancer?._id);
-      const revieweeId = projectData.freelancer?._id || projectData.client._id;
       
-      const [reviewStatus, fetchedReviews, proposalsData, tasksData] = await Promise.all([
+      // Fetch all related data in parallel for efficiency
+      const [reviewStatus, clientReviews, freelancerReviews, proposalsData, tasksData] = await Promise.all([
         checkUserReview(projectId),
-        revieweeId ? getReviewsForUser(revieweeId) : Promise.resolve([]),
+        getReviewsForUser(projectData.client._id),
+        projectData.freelancer?._id ? getReviewsForUser(projectData.freelancer._id) : Promise.resolve([]),
         user?.role === 'freelancer' ? getMyProposals() : Promise.resolve([]),
         (isParticipant && ["in-progress", "completed"].includes(projectData.status)) ? getTasksForProject(projectId) : Promise.resolve([])
       ]);
-
+      
+      // Combine all reviews and set them
+      setReviews([...(clientReviews || []), ...(freelancerReviews || [])]);
       setHasReviewed(reviewStatus.hasReviewed);
-      setReviews(fetchedReviews || []);
       setTasks(tasksData || []);
       
       if (user?.role === 'freelancer') {
@@ -188,6 +195,7 @@ const ProjectDetail = () => {
   const isProjectParticipant = user && (user._id === project.client._id || user._id === project.freelancer?._id);
   const otherParticipant = user?._id === project.client._id ? project.freelancer : project.client;
   const myReview = reviews.find(r => r.reviewer?._id === user?._id);
+  const reviewOfMe = reviews.find(r => r.reviewee === user?._id && r.project === projectId);
 
   const TabButton = ({ tabName, label, icon: Icon }) => (
     <button onClick={() => setActiveTab(tabName)} className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md ${activeTab === tabName ? "bg-blue-100 text-blue-700" : "text-gray-600 hover:bg-gray-100"}`}>
@@ -200,7 +208,7 @@ const ProjectDetail = () => {
       return ( <motion.div initial={{opacity: 0}} animate={{opacity: 1}} className="text-center bg-white p-8 rounded-lg shadow-md"> <LoaderCircle className="mx-auto h-12 w-12 text-blue-500 animate-spin" /> <p className="font-semibold text-lg mt-4">Processing payment...</p> <p className="text-gray-500">Please do not close this page.</p> </motion.div> );
     }
     if (project.status === 'completed') {
-      return ( <motion.div initial={{opacity: 0}} animate={{opacity: 1}} className="text-center bg-white p-8 rounded-lg shadow-md"> <CheckCircle className="mx-auto h-12 w-12 text-green-500" /> <h2 className="mt-4 text-2xl font-bold">Payment Complete!</h2> <p className="text-gray-600">This project is now complete.</p> </motion.div> );
+      return ( <motion.div initial={{opacity: 0}} animate={{opacity: 1}} className="text-center bg-white p-8 rounded-lg shadow-md"> <CheckCircle className="mx-auto h-12 w-12 text-green-500" /> <h2 className="mt-4 text-2xl font-bold">Payment Complete!</h2> <p className="text-gray-600">The project is now complete.</p> </motion.div> );
     }
     return ( <Billing project={project} invoice={project.invoice} user={user} onInitiatePayment={handleInitiatePayment} clientSecret={clientSecret} onPaymentSuccess={handlePaymentSuccess} onInvoiceCreate={handleInvoiceCreate} /> );
   };
@@ -225,9 +233,14 @@ const ProjectDetail = () => {
               </div>
             </div>
 
-            {project.status === "completed" && !hasReviewed && <LeaveReviewForm project={project} onReviewSubmit={handleReviewSubmit} />}
-            {project.status === "completed" && hasReviewed && <DisplayReview review={myReview} />}
-
+            {project.status === "completed" && (
+                <div>
+                    { !hasReviewed && <LeaveReviewForm project={project} onReviewSubmit={handleReviewSubmit} /> }
+                    { hasReviewed && <ReviewDisplayCard title="Your Submitted Review" review={myReview} /> }
+                    <ReviewDisplayCard title={`Review from ${otherParticipant.name}`} review={reviewOfMe} />
+                </div>
+            )}
+            
             <div className="mb-6 flex items-center gap-2 border-b border-gray-200 pb-2">
               <TabButton tabName="overview" label="Overview" icon={Briefcase} />
               <TabButton tabName="tasks" label="Tasks" icon={ListTodo} />
