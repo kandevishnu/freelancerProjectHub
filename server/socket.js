@@ -8,7 +8,7 @@ export function initSocket(httpServer) {
   io = new Server(httpServer, {
     transports: ['websocket'],
     cors: {
-      origin: "http://localhost:5173",
+      origin: ["http://localhost:5173","https://freelancerprojecthub.vercel.app/"],
       methods: ["GET", "POST"]
     }
   });
