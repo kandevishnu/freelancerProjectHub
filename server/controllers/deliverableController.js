@@ -16,9 +16,18 @@ export const uploadDeliverable = async (req, res) => {
       return res.status(404).json({ error: 'Project not found.' });
     }
 
-    if (!project.freelancer || !project.freelancer.equals(userId)) {
-      return res.status(403).json({ error: 'Forbidden: You are not the freelancer for this project.' });
+    if (req.user.role !== 'freelancer') {
+        return res.status(403).json({ error: 'Forbidden: Only freelancers can upload deliverables.' });
     }
+
+    if (!project.freelancer) {
+        return res.status(400).json({ error: 'This project does not have an assigned freelancer.' });
+    }
+
+    if (!project.freelancer.equals(userId)) {
+      return res.status(403).json({ error: 'Forbidden: You are not the assigned freelancer for this project.' });
+    }
+    
 
     const newDeliverable = new Deliverable({
       project: projectId,
@@ -28,11 +37,10 @@ export const uploadDeliverable = async (req, res) => {
     });
 
     await newDeliverable.save();
-
     res.status(201).json(newDeliverable);
   } catch (err) {
-    console.error('Upload deliverable error:', err.message);
-    res.status(500).json({ error: 'Server error while uploading deliverable.' });
+    console.error('Upload deliverable error:', err);
+    res.status(500).json({ error: 'Server error while uploading deliverable.', details: err.message });
   }
 };
 
