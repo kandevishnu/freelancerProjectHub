@@ -198,8 +198,17 @@ const ProjectDetail = () => {
   const reviewOfMe = reviews.find(r => r.reviewee === user?._id && r.project === projectId);
 
   const TabButton = ({ tabName, label, icon: Icon }) => (
-    <button onClick={() => setActiveTab(tabName)} className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md ${activeTab === tabName ? "bg-blue-100 text-blue-700" : "text-gray-600 hover:bg-gray-100"}`}>
-      <Icon size={16} /> {label}
+    <button
+      onClick={() => setActiveTab(tabName)}
+      className={`flex items-center gap-2 px-3 md:px-4 py-2 text-sm font-semibold rounded-md transition-colors ${
+        activeTab === tabName
+          ? "bg-blue-100 text-blue-700"
+          : "text-gray-600 hover:bg-gray-100"
+      }`}
+      title={label} 
+    >
+      <Icon size={16} />
+      <span className="hidden md:inline">{label}</span>
     </button>
   );
 

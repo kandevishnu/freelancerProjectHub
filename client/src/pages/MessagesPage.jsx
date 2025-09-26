@@ -48,7 +48,7 @@ const MessagesPage = () => {
 
   return (
     <div className="flex h-[calc(100vh-120px)] bg-white rounded-lg shadow-md overflow-hidden">
-      <div className="w-full md:w-[320px] lg:w-[380px] border-r border-gray-200 flex-shrink-0">
+      <div className={`w-full md:w-[380px] border-r border-gray-200 flex-shrink-0 flex flex-col ${activeConversationId ? 'hidden md:flex' : 'flex'}`}>
         <ConversationList
           conversations={conversations}
           connections={connections}
@@ -58,11 +58,11 @@ const MessagesPage = () => {
         />
       </div>
 
-      <div className="hidden md:flex flex-col flex-grow">
+      <div className={`w-full flex-col ${activeConversationId ? 'flex' : 'hidden'} md:flex`}>
         {activeConversation ? (
           <ChatWindow key={activeConversationId} conversation={activeConversation} />
         ) : (
-          <div className="flex items-center justify-center h-full text-center text-gray-500">
+          <div className="hidden md:flex items-center justify-center h-full text-center text-gray-500">
             <div className="flex flex-col items-center gap-4">
                 <MessageSquare size={48} className="text-gray-300" />
                 <h2 className="text-xl font-semibold">Welcome to your Messages</h2>
