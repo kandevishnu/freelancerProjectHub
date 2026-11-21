@@ -5,13 +5,16 @@ import ProjectMessage from './models/ProjectMessage.js';
 let io;
 
 export function initSocket(httpServer) {
-  const configuredOrigins = (process.env.FRONTEND_URL || "")
+  const configuredOrigins = (
+    process.env.CLIENT_URL ||
+    process.env.FRONTEND_URL ||
+    ""
+  )
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean);
 
   io = new Server(httpServer, {
-    transports: ['websocket'],
     cors: {
       origin: [
         "http://localhost:5173",
@@ -19,7 +22,8 @@ export function initSocket(httpServer) {
         "https://freelancerprojecthub.vercel.app",
         ...configuredOrigins,
       ],
-      methods: ["GET", "POST"]
+      methods: ["GET", "POST"],
+      credentials: true
     }
   });
 

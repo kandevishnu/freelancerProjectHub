@@ -33,7 +33,6 @@ import upload from './config/cloudinary.js';
 dotenv.config();
 
 const requiredEnv = [
-  "MONGO_URI",
   "JWT_SECRET",
   "CLOUDINARY_CLOUD_NAME",
   "CLOUDINARY_API_KEY",
@@ -42,9 +41,21 @@ const requiredEnv = [
   "STRIPE_WEBHOOK_SECRET",
 ];
 
+if (!process.env.MONGODB_URI && !process.env.MONGO_URI) {
+  throw new Error("Missing required environment variable: MONGODB_URI");
+}
+
 const missingEnv = requiredEnv.filter((key) => !process.env[key]);
 if (missingEnv.length > 0) {
   throw new Error(`Missing required environment variables: ${missingEnv.join(", ")}`);
+}
+
+if (
+  process.env.NODE_ENV === "production" &&
+  !process.env.CLIENT_URL &&
+  !process.env.FRONTEND_URL
+) {
+  throw new Error("Missing required production environment variable: CLIENT_URL");
 }
 
 const app = express();
@@ -55,7 +66,7 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
   "https://freelancerprojecthub.vercel.app",
-  ...(process.env.FRONTEND_URL || "")
+  ...(process.env.CLIENT_URL || process.env.FRONTEND_URL || "")
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean),
@@ -68,6 +79,7 @@ app.use(cors({
     }
     return callback(new Error("Origin not allowed by CORS"));
   },
+  credentials: true,
 }));
 app.post(
   '/api/payments/stripe-webhook', 
@@ -75,9 +87,16 @@ app.post(
   handleStripeWebhook
 );
 app.use(express.json());
-connectDB();
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "awake",
+    message: "Backend is running successfully",
+    timestamp: new Date().toISOString(),
+  });
+});
 
 app.use("/api/auth", authRoutes); 
 app.use('/api/projects', projectRoutes);
@@ -104,9 +123,29 @@ app.use('/api/education', educationRoutes);
 app.get("/", (req, res) => res.send("API is running..."));
 
 const server = http.createServer(app);
-initSocket(server);
-
-
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+const startServer = async () => {
+  await connectDB();
+  initSocket(server);
+
+  server.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+};
+
+startServer().catch((error) => {
+  console.error(error.message);
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (reason) => {
+  console.error("Unhandled promise rejection:", reason);
+  process.exit(1);
+});
+
+process.on("uncaughtException", (error) => {
+  console.error("Uncaught exception:", error);
+  process.exit(1);
+});
 
