@@ -21,6 +21,9 @@ export const createPaymentIntent = async (req, res) => {
     if (!invoice.client.equals(userId)) {
         return res.status(403).json({ error: "Forbidden: You are not the client for this invoice." });
     }
+    if (!Number.isFinite(invoice.amount) || invoice.amount <= 0) {
+      return res.status(400).json({ error: "Invoice amount is invalid." });
+    }
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: invoice.amount * 100,

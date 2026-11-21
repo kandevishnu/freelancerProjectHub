@@ -22,6 +22,11 @@ export const createInvoice = async (req, res) => {
     const { projectId } = req.params;
     const { amount } = req.body;
     const freelancerId = req.user._id;
+    const numericAmount = Number(amount);
+
+    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+      return res.status(400).json({ error: "Invoice amount must be greater than zero." });
+    }
 
     const project = await Project.findById(projectId);
     if (!project) {
@@ -43,7 +48,7 @@ export const createInvoice = async (req, res) => {
       project: projectId,
       client: project.client,
       freelancer: freelancerId,
-      amount,
+      amount: numericAmount,
     });
     await newInvoice.save();
 
@@ -67,50 +72,6 @@ export const createInvoice = async (req, res) => {
         .json({ error: "An invoice for this project already exists." });
     }
     console.error("Create invoice error:", err.message);
-    res.status(500).json({ error: "Server error" });
-  }
-};
-
-export const payInvoice = async (req, res) => {
-  try {
-    const { invoiceId } = req.params;
-    const clientId = req.user._id;
-
-    const invoice = await Invoice.findById(invoiceId);
-    if (!invoice) {
-      return res.status(404).json({ error: "Invoice not found." });
-    }
-    if (!invoice.client.equals(clientId)) {
-      return res
-        .status(403)
-        .json({ error: "You are not the client for this project." });
-    }
-    if (invoice.status === "paid") {
-      await Project.findByIdAndUpdate(invoice.project, { status: "completed" });
-      return res.json(invoice);
-    }
-
-    invoice.status = "paid";
-    await invoice.save();
-
-    await Project.findByIdAndUpdate(invoice.project, { status: "completed" });
-
-    const project = await Project.findById(invoice.project);
-    const notification = new Notification({
-      recipient: invoice.freelancer,
-      sender: clientId,
-      type: "invoice_paid",
-      link: `/project/${invoice.project}`,
-    });
-    await notification.save();
-    const io = getIO();
-    io.to(invoice.freelancer.toString()).emit("newNotification", {
-      message: `Your invoice for "${project.title}" has been paid!`,
-    });
-
-    res.json(invoice);
-  } catch (err) {
-    console.error("Pay invoice error:", err.message);
     res.status(500).json({ error: "Server error" });
   }
 };

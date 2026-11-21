@@ -10,7 +10,6 @@ import {
     submitProposal, 
     getMyProposals, 
     createInvoice, 
-    payInvoice,
     checkUserReview, 
     createStripePaymentIntent,
     getReviewsForUser 
@@ -160,12 +159,22 @@ const ProjectDetail = () => {
   const handlePaymentSuccess = async () => {
     setIsProcessingPayment(true);
     try {
-      if (project?.invoice?._id) {
-        await payInvoice(project.invoice._id);
-        toast.success("Payment completed successfully! The project is now complete.");
-      }
       setClientSecret(null);
-      await fetchProjectData();
+      toast.success("Payment confirmed. Refreshing project status...");
+
+      for (let attempt = 0; attempt < 8; attempt += 1) {
+        await fetchProjectData();
+        await new Promise((resolve) => setTimeout(resolve, 750));
+
+        const latestProject = await getProjectById(projectId);
+        if (latestProject.status === "completed" && latestProject.invoice?.status === "paid") {
+          setProject(latestProject);
+          toast.success("Payment completed successfully! The project is now complete.");
+          return;
+        }
+      }
+
+      toast.info("Stripe confirmed the payment. Final status will update when the webhook completes.");
     } catch (err) {
       console.error("Payment confirmation error:", err);
       toast.error(err.message || "Failed to confirm payment on server.");

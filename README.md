@@ -28,9 +28,11 @@ It centralizes project posting, proposals, contracts, tasks, file sharing, real-
 - Billing & Payment tab for invoices
 
 ### Payments
-
-- **Stripe API** integration
-- Secure webhook-driven payment confirmations
+- Freelancer generates a project invoice
+- Client pays securely through **Stripe**
+- Stripe webhook confirms successful payment and marks the project complete
+- Freelancer earnings summary includes paid and pending invoices
+- The project does not currently implement an internal wallet, escrow, withdrawal, or payout balance
 
 ### Communication & Notifications
 
@@ -134,6 +136,7 @@ Update `.env` with your credentials:
 PORT=5000
 MONGO_URI=your-mongodb-uri
 JWT_SECRET=your-secret-key
+FRONTEND_URL=http://localhost:5173
 
 CLOUDINARY_CLOUD_NAME=your-cloud-name
 CLOUDINARY_API_KEY=your-api-key
@@ -149,6 +152,12 @@ For local development, keep the frontend and backend on the following URLs:
 - Frontend: `http://localhost:5173`
 
 Start the backend server:
+
+```bash
+npm run dev
+```
+
+For a production-style local process without nodemon:
 
 ```bash
 npm start
@@ -211,6 +220,7 @@ VITE_STRIPE_PUBLISHABLE_KEY=pk_live_your_stripe_publishable_key
 PORT=5000
 MONGO_URI=your-production-mongodb-uri
 JWT_SECRET=your-strong-production-secret
+FRONTEND_URL=https://freelancerprojecthub.vercel.app
 CLOUDINARY_CLOUD_NAME=your-cloud-name
 CLOUDINARY_API_KEY=your-cloudinary-api-key
 CLOUDINARY_API_SECRET=your-cloudinary-api-secret

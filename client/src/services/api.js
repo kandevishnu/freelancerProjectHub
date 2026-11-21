@@ -371,24 +371,6 @@ export const createStripePaymentIntent = async (invoiceId) => {
   }
 };
 
-export const payInvoice = async (invoiceId) => {
-  try {
-    const res = await axios.patch(`/api/invoices/${invoiceId}/pay`);
-    return res.data;
-  } catch (error) {
-    handleError(error);
-  }
-};
-
-export const verifyPayment = async (paymentData) => {
-    try {
-        const res = await axios.post('/api/payments/verify', paymentData);
-        return res.data;
-    } catch (error) {
-        handleError(error);
-    }
-};
-
 export const changePassword = async (passwordData) => {
   try {
     const res = await axios.patch('/api/users/me/change-password', passwordData);
