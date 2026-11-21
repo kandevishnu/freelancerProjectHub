@@ -69,7 +69,7 @@ It centralizes project posting, proposals, contracts, tasks, file sharing, real-
 - **Payments:** Stripe
 - **File Storage:** Cloudinary
 - **Authentication:** JSON Web Tokens (JWT)
-- **Deployment:** Vercel (frontend), AWS EC2 + Nginx + PM2 (backend)
+- **Deployment:** Vercel (frontend), Render (backend)
 
 ---
 
@@ -199,8 +199,10 @@ npm run dev
 
 This project is deployed with a decoupled architecture.
 
-### Backend (AWS EC2 + Nginx + PM2)
-The backend Node.js application is deployed on an AWS EC2 instance, running as a persistent process managed by **PM2**. **Nginx** is used as a reverse proxy to handle incoming traffic and to serve the application over HTTPS using a free SSL certificate from **Let's Encrypt**.
+### Backend (Render)
+The backend Node.js application is deployed on **Render** as a web service. Render provides the public HTTPS backend URL and runs the health check from `/health`.
+
+Render Free services may sleep after inactivity. The frontend checks `/health` on startup and shows a server wake-up screen with automatic retries while Render starts the backend. It opens the application automatically when the health check succeeds.
 
 ### Frontend (Vercel)
 The frontend React application is deployed on **Vercel**. The repository is configured with a `vercel.json` file to correctly handle client-side routing, and environment variables are set in the Vercel project settings to connect to the live backend API.
@@ -210,17 +212,17 @@ Configure these production environment variables:
 **Frontend (Vercel):**
 
 ```env
-VITE_API_BASE_URL=https://your-deployed-backend-domain
+VITE_API_BASE_URL=https://<your-render-service-name>.onrender.com
 VITE_STRIPE_PUBLISHABLE_KEY=pk_live_your_stripe_publishable_key
 ```
 
-**Backend (EC2):**
+**Backend (Render):**
 
 ```env
-PORT=5000
-MONGO_URI=your-production-mongodb-uri
+PORT=10000
+MONGODB_URI=your-production-mongodb-uri
 JWT_SECRET=your-strong-production-secret
-FRONTEND_URL=https://freelancer.kandevishnu.me
+CLIENT_URL=https://freelancer.kandevishnu.me
 CLOUDINARY_CLOUD_NAME=your-cloud-name
 CLOUDINARY_API_KEY=your-cloudinary-api-key
 CLOUDINARY_API_SECRET=your-cloudinary-api-secret
@@ -231,7 +233,7 @@ STRIPE_WEBHOOK_SECRET=whsec_your_production_webhook_secret
 For live Stripe payments, register this webhook endpoint in the Stripe Dashboard:
 
 ```text
-https://your-deployed-backend-domain/api/payments/stripe-webhook
+https://<your-render-service-name>.onrender.com/api/payments/stripe-webhook
 ```
 
 ---

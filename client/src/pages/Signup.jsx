@@ -14,6 +14,7 @@ const Signup = () => {
 
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -24,6 +25,7 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSubmitting(true);
 
     try {
       const res = await axios.post("/api/auth/register", form);
@@ -35,7 +37,22 @@ const Signup = () => {
 
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed");
+      const status = err.response?.status;
+      const serverMessage = err.response?.data?.message;
+
+      if (!err.response) {
+        setError("Cannot reach the server. Please wait while it starts and try again.");
+      } else if (status === 409) {
+        setError(serverMessage || "An account already exists with this email.");
+      } else if (status === 400) {
+        setError(serverMessage || "Please check your registration details.");
+      } else if (status >= 500) {
+        setError("The server is experiencing a problem. Please try again shortly.");
+      } else {
+        setError(serverMessage || "Registration failed. Please try again.");
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -144,9 +161,10 @@ const Signup = () => {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-md font-semibold text-lg hover:bg-blue-700 transition-colors duration-200 transform hover:-translate-y-0.5 shadow-md"
+            disabled={submitting}
+            className="w-full bg-blue-600 text-white py-3 rounded-md font-semibold text-lg hover:bg-blue-700 transition-colors duration-200 transform hover:-translate-y-0.5 shadow-md disabled:cursor-not-allowed disabled:opacity-60 disabled:transform-none"
           >
-            Sign Up
+            {submitting ? "Creating account..." : "Sign Up"}
           </button>
         </form>
 

@@ -102,9 +102,7 @@ Set the resulting signing secret as `STRIPE_WEBHOOK_SECRET` on Render.
 
 ## Free-tier wake-up behavior
 
-Render Free services can sleep when inactive. The frontend is not modified as part of this backend preparation.
-
-The separate frontend integration should:
+Render Free services can sleep when inactive. The Vercel frontend handles this automatically:
 
 1. Send `GET /health` when a visitor opens the Vercel frontend.
 2. Show the application immediately when the request succeeds.

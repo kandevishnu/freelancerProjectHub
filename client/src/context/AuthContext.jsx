@@ -34,11 +34,15 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (err) {
       console.error("Auth verification failed:", err?.response?.data || err.message);
-      setUser(null);
-      setToken("");
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      setAxiosAuthToken(null);
+      const status = err?.response?.status;
+
+      if (status === 401 || status === 403) {
+        setUser(null);
+        setToken("");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setAxiosAuthToken(null);
+      }
     } finally {
       setLoading(false);
     }

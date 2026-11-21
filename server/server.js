@@ -91,6 +91,7 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get("/health", (req, res) => {
+  res.set("Cache-Control", "no-store");
   res.status(200).json({
     status: "awake",
     message: "Backend is running successfully",
