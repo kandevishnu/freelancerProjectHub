@@ -3,7 +3,7 @@
 A full-stack freelance collaboration platform built with the **MERN stack**.  
 It centralizes project posting, proposals, contracts, tasks, file sharing, real-time chat, and payments—providing a single workspace for clients and freelancers.
 
-**Live Demo:** [freelancerprojecthub.vercel.app](https://freelancerprojecthub.vercel.app)
+**Live Demo:** [freelancer.kandevishnu.me](https://freelancer.kandevishnu.me)
 
 ---
 
@@ -220,7 +220,7 @@ VITE_STRIPE_PUBLISHABLE_KEY=pk_live_your_stripe_publishable_key
 PORT=5000
 MONGO_URI=your-production-mongodb-uri
 JWT_SECRET=your-strong-production-secret
-FRONTEND_URL=https://freelancerprojecthub.vercel.app
+FRONTEND_URL=https://freelancer.kandevishnu.me
 CLOUDINARY_CLOUD_NAME=your-cloud-name
 CLOUDINARY_API_KEY=your-cloudinary-api-key
 CLOUDINARY_API_SECRET=your-cloudinary-api-secret
