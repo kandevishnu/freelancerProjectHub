@@ -9,18 +9,18 @@ const ConversationList = ({ conversations, connections, activeConversationId, on
   const displayList = useMemo(() => {
     const convoMap = new Map();
     conversations.forEach(convo => {
-      const other = convo.participants.find(p => p._id !== user._id);
-      if (other) {
+      const other = convo.participants?.find(p => p && p._id !== user?._id);
+      if (other && other._id) {
         convoMap.set(other._id, { type: 'conversation', data: convo, user: other });
       }
     });
     connections.forEach(conn => {
-      if (!convoMap.has(conn._id)) {
+      if (conn && conn._id && !convoMap.has(conn._id)) {
         convoMap.set(conn._id, { type: 'connection', data: conn, user: conn });
       }
     });
     return Array.from(convoMap.values())
-        .filter(item => item.user.name.toLowerCase().includes(searchTerm.toLowerCase()));
+        .filter(item => (item.user?.name || '').toLowerCase().includes(searchTerm.toLowerCase()));
   }, [conversations, connections, user, searchTerm]);
 
   return (
@@ -58,11 +58,19 @@ const ConversationList = ({ conversations, connections, activeConversationId, on
                 }}
                 className={`flex items-center gap-3 p-3 border-b border-gray-200 hover:bg-gray-100 ${isActive ? 'bg-blue-100' : ''}`}
               >
-                <div className="w-10 h-10 rounded-full bg-blue-200 flex-shrink-0 flex items-center justify-center font-bold text-blue-600">
-                  {item.user.name.charAt(0)}
-                </div>
+                {item.user.profilePictureUrl ? (
+                  <img
+                    src={item.user.profilePictureUrl}
+                    alt={item.user.name || 'User'}
+                    className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-blue-100 flex-shrink-0 flex items-center justify-center font-bold text-blue-600">
+                    {item.user.name?.charAt(0) || 'U'}
+                  </div>
+                )}
                 <div className="flex-grow overflow-hidden">
-                    <p className="font-semibold truncate">{item.user.name}</p>
+                    <p className="font-semibold truncate">{item.user.name || 'User'}</p>
                     {item.type === 'connection' && <p className="text-sm text-gray-400">Start conversation</p>}
                 </div>
               </Link>

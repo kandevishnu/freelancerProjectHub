@@ -13,6 +13,8 @@ const NotificationItem = ({ notification }) => {
         connection_accepted: <CheckCircle className="text-green-500" />,
         new_proposal: <FileText className="text-yellow-500" />,
         new_post: <Newspaper className="text-indigo-500" />,
+        new_invoice: <FileText className="text-purple-500" />,
+        invoice_paid: <CheckCircle className="text-emerald-500" />,
     };
 
     const text = {
@@ -21,7 +23,9 @@ const NotificationItem = ({ notification }) => {
         new_connection_request: "wants to connect with you.",
         connection_accepted: "accepted your connection request.",
         new_proposal: "submitted a proposal on your project.",
-        new_post: "created a new post."
+        new_post: "created a new post.",
+        new_invoice: "sent you a project invoice.",
+        invoice_paid: "paid your project invoice.",
     };
     
     const senderName = notification.sender?.name || 'An unknown user';
@@ -30,7 +34,7 @@ const NotificationItem = ({ notification }) => {
     return (
         <li className={`p-4 flex items-start gap-4 hover:bg-gray-50 ${!notification.read ? 'bg-blue-50' : ''}`}>
             <div className="flex-shrink-0 mt-1">
-                {icons[notification.type]}
+                {icons[notification.type] || <CheckCircle className="text-blue-500" />}
             </div>
             <div className="flex-grow">
                 <p className="text-gray-800">
@@ -41,13 +45,13 @@ const NotificationItem = ({ notification }) => {
                     ) : (
                         <span className="font-bold">{senderName}</span>
                     )}
-                    {' '}{text[notification.type]}
+                    {' '}{text[notification.type] || "sent you an update."}
                 </p>
                 <div className="text-sm mt-1 flex justify-between">
                     <span className="text-gray-500">
                         {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                     </span>
-                    <Link to={notification.link} className="font-semibold text-blue-600 hover:underline">
+                    <Link to={notification.link?.startsWith('/') ? notification.link : '/notifications'} className="font-semibold text-blue-600 hover:underline">
                         View Details
                     </Link>
                 </div>

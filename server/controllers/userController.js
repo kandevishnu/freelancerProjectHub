@@ -84,7 +84,7 @@ export const sendConnectionRequest = async (req, res) => {
         recipient: recipientId,
         sender: req.user._id,
         type: 'new_connection_request',
-        link: newConnection._id.toString(),
+        link: `/profile/${req.user._id}`,
     });
     await notification.save();
 

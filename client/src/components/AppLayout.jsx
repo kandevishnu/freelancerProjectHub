@@ -17,6 +17,7 @@ import {
   Menu,
   X,
   BriefcaseBusiness,
+  Wallet,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import {
@@ -164,6 +165,17 @@ const AppLayout = () => {
                 </NavLink>
               )}
 
+              {isFreelancer && (
+                <NavLink
+                  to="/wallet"
+                  className={navLinkClass}
+                  title="Wallet & Income"
+                >
+                  <Wallet size={20} />
+                  <span className="hidden lg:inline">Wallet</span>
+                </NavLink>
+              )}
+
               <NavLink
                 to={
                   user?.role === "client"
@@ -288,6 +300,13 @@ const AppLayout = () => {
                   <NavLink to="/find-work" className={navLinkClass}>
                     <BriefcaseBusiness size={20} />
                     <span>Find Work</span>
+                  </NavLink>
+                )}
+
+                {isFreelancer && (
+                  <NavLink to="/wallet" className={navLinkClass}>
+                    <Wallet size={20} />
+                    <span>Wallet & Income</span>
                   </NavLink>
                 )}
 

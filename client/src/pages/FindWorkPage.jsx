@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getOpenProjects } from '../services/api';
-import { Briefcase, Clock, DollarSign } from 'lucide-react';
+import { Briefcase, Clock, Banknote } from 'lucide-react';
 
 const FindWorkPage = () => {
   const [projects, setProjects] = useState([]);
@@ -64,8 +64,8 @@ const JobCard = ({ project }) => (
     </div>
     <div className="mt-4 border-t pt-4 flex flex-col sm:flex-row gap-4 text-gray-600 text-sm">
       <div className="flex items-center gap-2">
-        <DollarSign size={16} />
-        <span>Budget: ₹{project.budget}</span>
+        <Banknote size={16} className="text-emerald-600" />
+        <span>Budget: <strong className="text-emerald-700 font-semibold">Rs. {Number(project.budget || 0).toLocaleString('en-IN')}</strong></span>
       </div>
       <div className="flex items-center gap-2">
         <Clock size={16} />

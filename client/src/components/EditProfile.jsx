@@ -20,7 +20,7 @@ const EditProfile = ({ onSuccess }) => {
       const updatedUser = await updateMe({ ...formData, skills: skillsArray });
       setUser(updatedUser);
       toast.success('Profile updated successfully!');
-      if (onSuccess) onSuccess();tabs
+      if (onSuccess) onSuccess();
     } catch (error) {
       toast.error(error.message || 'Failed to update profile.');
     }

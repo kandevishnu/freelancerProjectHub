@@ -6,7 +6,7 @@ export const getConversations = async (req, res) => {
   try {
     const userId = req.user._id;
     const conversations = await Conversation.find({ participants: userId })
-      .populate('participants', 'name profilePictureUrl')
+      .populate('participants', 'name profilePictureUrl role')
       .sort({ updatedAt: -1 });
 
     res.json(conversations);
@@ -56,6 +56,7 @@ export const startConversation = async (req, res) => {
         });
 
         if (conversation) {
+            await conversation.populate('participants', 'name profilePictureUrl role');
             return res.status(200).json(conversation);
         }
 
@@ -64,6 +65,7 @@ export const startConversation = async (req, res) => {
         });
 
         await conversation.save();
+        await conversation.populate('participants', 'name profilePictureUrl role');
         res.status(201).json(conversation);
 
     } catch (err) {

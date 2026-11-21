@@ -86,9 +86,8 @@ export const payInvoice = async (req, res) => {
         .json({ error: "You are not the client for this project." });
     }
     if (invoice.status === "paid") {
-      return res
-        .status(400)
-        .json({ error: "This invoice has already been paid." });
+      await Project.findByIdAndUpdate(invoice.project, { status: "completed" });
+      return res.json(invoice);
     }
 
     invoice.status = "paid";
@@ -113,5 +112,39 @@ export const payInvoice = async (req, res) => {
   } catch (err) {
     console.error("Pay invoice error:", err.message);
     res.status(500).json({ error: "Server error" });
+  }
+};
+
+export const getMyEarnings = async (req, res) => {
+  try {
+    const freelancerId = req.user._id;
+
+    const invoices = await Invoice.find({ freelancer: freelancerId })
+      .populate('project', 'title status budget')
+      .populate('client', 'name email profilePictureUrl')
+      .sort({ createdAt: -1 });
+
+    const totalEarned = invoices
+      .filter((inv) => inv.status === 'paid')
+      .reduce((sum, inv) => sum + (inv.amount || 0), 0);
+
+    const pendingAmount = invoices
+      .filter((inv) => inv.status === 'pending')
+      .reduce((sum, inv) => sum + (inv.amount || 0), 0);
+
+    const paidInvoicesCount = invoices.filter((inv) => inv.status === 'paid').length;
+    const pendingInvoicesCount = invoices.filter((inv) => inv.status === 'pending').length;
+
+    res.json({
+      invoices,
+      totalEarned,
+      pendingAmount,
+      totalInvoices: invoices.length,
+      paidInvoicesCount,
+      pendingInvoicesCount,
+    });
+  } catch (err) {
+    console.error("Get my earnings error:", err.message);
+    res.status(500).json({ error: "Server error while fetching earnings." });
   }
 };

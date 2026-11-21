@@ -1,4 +1,4 @@
-# Freelancer Project Hub
+﻿# Freelancer Project Hub
 
 A full-stack freelance collaboration platform built with the **MERN stack**.  
 It centralizes project posting, proposals, contracts, tasks, file sharing, real-time chat, and payments—providing a single workspace for clients and freelancers.
@@ -106,16 +106,17 @@ freelancerProjectHub/
 
 Make sure you have the following installed:
 
-- Node.js (>= 16) and npm
+- Node.js 20.19 or newer and npm (Node.js 22 LTS recommended)
 - MongoDB (local or Atlas)
 - Cloudinary account
 - Stripe account
+- Stripe CLI (recommended for local webhook testing)
 
 ---
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/freelancerProjectHub.git
+git clone https://github.com/kandevishnu/freelancerProjectHub.git
 cd freelancerProjectHub
 ```
 
@@ -142,13 +143,25 @@ STRIPE_SECRET_KEY=your-stripe-secret
 STRIPE_WEBHOOK_SECRET=your-stripe-webhook-secret
 ```
 
+For local development, keep the frontend and backend on the following URLs:
 
+- Backend: `http://localhost:5000`
+- Frontend: `http://localhost:5173`
 
 Start the backend server:
 
 ```bash
 npm start
 ```
+
+To test Stripe payment webhooks locally, start the Stripe CLI in a separate terminal:
+
+```bash
+stripe login
+stripe listen --forward-to localhost:5000/api/payments/stripe-webhook
+```
+
+Copy the webhook signing secret printed by the Stripe CLI into `STRIPE_WEBHOOK_SECRET` in `server/.env`, then restart the backend server.
 
 ---
 
@@ -166,6 +179,7 @@ VITE_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key
 ```
 
 Run the frontend:
+
 ```bash
 npm run dev
 ```
@@ -174,8 +188,6 @@ npm run dev
 
 ## 🌐 Deployment
 
-
-
 This project is deployed with a decoupled architecture.
 
 ### Backend (AWS EC2 + Nginx + PM2)
@@ -183,6 +195,34 @@ The backend Node.js application is deployed on an AWS EC2 instance, running as a
 
 ### Frontend (Vercel)
 The frontend React application is deployed on **Vercel**. The repository is configured with a `vercel.json` file to correctly handle client-side routing, and environment variables are set in the Vercel project settings to connect to the live backend API.
+
+Configure these production environment variables:
+
+**Frontend (Vercel):**
+
+```env
+VITE_API_BASE_URL=https://your-deployed-backend-domain
+VITE_STRIPE_PUBLISHABLE_KEY=pk_live_your_stripe_publishable_key
+```
+
+**Backend (EC2):**
+
+```env
+PORT=5000
+MONGO_URI=your-production-mongodb-uri
+JWT_SECRET=your-strong-production-secret
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-cloudinary-api-key
+CLOUDINARY_API_SECRET=your-cloudinary-api-secret
+STRIPE_SECRET_KEY=sk_live_your_stripe_secret_key
+STRIPE_WEBHOOK_SECRET=whsec_your_production_webhook_secret
+```
+
+For live Stripe payments, register this webhook endpoint in the Stripe Dashboard:
+
+```text
+https://your-deployed-backend-domain/api/payments/stripe-webhook
+```
 
 ---
 

@@ -21,6 +21,7 @@ import NotificationsPage from "./pages/NotificationsPage.jsx";
 import FindWorkPage from "./pages/FindWorkPage.jsx";
 import SearchResultsPage from "./pages/SearchResultsPage.jsx";
 import MessagesPage from './pages/MessagesPage';
+import WalletPage from './pages/WalletPage';
 
 const DashboardRedirect = () => {
   const { user, loading } = useAuth();
@@ -47,6 +48,7 @@ const App = () => {
           <Route path="/dashboard" element={<DashboardRedirect />} />
           <Route path="/client" element={<RoleGuard allow={['client']}><ClientDashboard /></RoleGuard>} />
           <Route path="/freelancer" element={<RoleGuard allow={['freelancer']}><FreelancerDashboard /></RoleGuard>} />
+          <Route path="/wallet" element={<RoleGuard allow={['freelancer']}><WalletPage /></RoleGuard>} />
           <Route path="/project/new" element={<RoleGuard allow={['client']}><CreateProject /></RoleGuard>} />
           <Route path="/project/:projectId/proposals" element={<RoleGuard allow={['client']}><ViewProposals /></RoleGuard>} />
           <Route path="/notifications" element={<NotificationsPage />} />

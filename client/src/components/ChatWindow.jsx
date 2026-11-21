@@ -70,10 +70,23 @@ const ChatWindow = ({ conversation }) => {
                 <ArrowLeft size={20} />
             </button>
             <Link to={`/profile/${otherParticipant._id}`} className="flex items-center gap-3 hover:bg-gray-200 p-2 rounded-lg">
-                <div className="w-10 h-10 rounded-full bg-blue-200 flex-shrink-0 flex items-center justify-center font-bold text-blue-600">
-                    {otherParticipant.name.charAt(0)}
+                {otherParticipant.profilePictureUrl ? (
+                    <img
+                        src={otherParticipant.profilePictureUrl}
+                        alt={otherParticipant.name}
+                        className="w-10 h-10 rounded-full object-cover ring-1 ring-gray-200"
+                    />
+                ) : (
+                    <div className="w-10 h-10 rounded-full bg-blue-100 flex-shrink-0 flex items-center justify-center font-bold text-blue-600">
+                        {otherParticipant.name?.charAt(0) || 'U'}
+                    </div>
+                )}
+                <div>
+                    <h2 className="font-bold text-lg leading-tight text-gray-900">{otherParticipant.name}</h2>
+                    {otherParticipant.role && (
+                        <p className="text-xs text-gray-500 capitalize">{otherParticipant.role}</p>
+                    )}
                 </div>
-                <h2 className="font-bold text-lg">{otherParticipant.name}</h2>
             </Link>
         </div>
 

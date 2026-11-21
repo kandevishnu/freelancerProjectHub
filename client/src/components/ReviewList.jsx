@@ -24,7 +24,7 @@ const ReviewList = ({ reviews }) => {
       {reviews.map(review => (
         <div key={review._id} className="bg-white rounded-lg shadow-md p-5">
           <div className="flex justify-between items-center">
-            <p className="font-semibold">{review.reviewer.name}</p>
+            <p className="font-semibold">{review.reviewer?.name || 'Anonymous User'}</p>
             <StarRating rating={review.rating} />
           </div>
           <p className="text-gray-600 mt-2 italic">"{review.comment}"</p>

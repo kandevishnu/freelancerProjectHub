@@ -10,6 +10,7 @@ import {
     submitProposal, 
     getMyProposals, 
     createInvoice, 
+    payInvoice,
     checkUserReview, 
     createStripePaymentIntent,
     getReviewsForUser 
@@ -21,7 +22,22 @@ import Deliverables from "../components/Deliverables.jsx";
 import ProjectChat from "../components/ProjectChat.jsx";
 import Billing from "../components/Billing.jsx";
 import ProposalModal from "../components/ProposalModal.jsx";
-import { MessageSquare, Clock, DollarSign, FileText, ListTodo, Briefcase, CheckCircle, LoaderCircle, Star } from "lucide-react";
+import FormattedDescription from "../components/FormattedDescription.jsx";
+import { 
+  MessageSquare, 
+  Clock, 
+  Banknote, 
+  CreditCard, 
+  ArrowLeft, 
+  Send, 
+  Calendar, 
+  FileText, 
+  ListTodo, 
+  Briefcase, 
+  CheckCircle, 
+  LoaderCircle, 
+  Star 
+} from "lucide-react";
 import { motion } from 'framer-motion';
 
 // --- HELPER COMPONENTS ---
@@ -141,12 +157,22 @@ const ProjectDetail = () => {
     } catch (error) { toast.error(error.message || 'Could not initiate payment.'); }
   };
 
-  const handlePaymentSuccess = () => {
+  const handlePaymentSuccess = async () => {
     setIsProcessingPayment(true);
-    setTimeout(async () => {
-        await fetchProjectData();
-        setIsProcessingPayment(false);
-    }, 2500);
+    try {
+      if (project?.invoice?._id) {
+        await payInvoice(project.invoice._id);
+        toast.success("Payment completed successfully! The project is now complete.");
+      }
+      setClientSecret(null);
+      await fetchProjectData();
+    } catch (err) {
+      console.error("Payment confirmation error:", err);
+      toast.error(err.message || "Failed to confirm payment on server.");
+      await fetchProjectData();
+    } finally {
+      setIsProcessingPayment(false);
+    }
   };
 
   const handleReviewSubmit = async () => {
@@ -232,7 +258,7 @@ const ProjectDetail = () => {
               <h1 className="text-4xl font-bold mt-1">{project.title}</h1>
               <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-gray-600">
                 <div className="flex items-center gap-2"><Clock size={16} /><span>Status: <span className="font-semibold capitalize">{project.status.replace("-", " ")}</span></span></div>
-                <div className="flex items-center gap-2"><DollarSign size={16} /><span>Budget: <span className="font-semibold text-green-600">₹{project.budget}</span></span></div>
+                <div className="flex items-center gap-2"><Banknote size={16} className="text-emerald-600" /><span>Budget: <span className="font-semibold text-emerald-700">Rs. {Number(project.budget || 0).toLocaleString('en-IN')}</span></span></div>
               </div>
               <div className="mt-4 border-t pt-4 flex justify-between items-center">
                 <div className="flex -space-x-2">
@@ -254,28 +280,178 @@ const ProjectDetail = () => {
               <TabButton tabName="overview" label="Overview" icon={Briefcase} />
               <TabButton tabName="tasks" label="Tasks" icon={ListTodo} />
               <TabButton tabName="deliverables" label="Deliverables" icon={FileText} />
-              <TabButton tabName="billing" label="Billing & Payment" icon={DollarSign} />
+              <TabButton tabName="billing" label="Billing & Payment" icon={CreditCard} />
             </div>
             <div>
-              {activeTab === "overview" && ( <div className="bg-white rounded-lg shadow-md p-6 prose max-w-none"><h3 className="font-bold text-xl mb-2">Project Brief</h3><p>{project.description}</p></div> )}
+              {activeTab === "overview" && (
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200/80 p-6 sm:p-8">
+                  <h3 className="font-bold text-xl text-gray-900 mb-6 pb-2 border-b">Project Brief</h3>
+                  <FormattedDescription content={project.description} />
+                </div>
+              )}
               {activeTab === "tasks" && ( <div><div className="flex justify-between items-center mb-4"><h3 className="font-bold text-xl">Task Board</h3><button onClick={() => setIsAddTaskModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-sm">+ Add Task</button></div><TaskBoard tasks={tasks} onStatusChange={handleTaskStatusChange} /></div> )}
               {activeTab === "deliverables" && ( <div><h3 className="font-bold text-xl mb-4">Deliverables</h3><Deliverables project={project} /></div> )}
               {activeTab === "billing" && renderBillingContent()}
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow-md p-8">
-             <h1 className="text-4xl font-bold">{project.title}</h1>
-            <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-gray-600 border-b pb-4">
-              <div className="flex items-center gap-2"><DollarSign size={16} /><span>Budget: <span className="font-semibold text-green-600">₹{project.budget}</span></span></div>
-              <div className="flex items-center gap-2"><Briefcase size={16} /><span>Posted by: <Link to={`/profile/${project.client._id}`} className="font-semibold text-blue-600 hover:underline">{project.client.name}</Link></span></div>
+          <div>
+            {/* Top Navigation & Status */}
+            <div className="mb-6 flex items-center justify-between">
+              <Link
+                to="/find-work"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-blue-600 transition-colors bg-white px-3.5 py-2 rounded-xl border border-gray-200/80 shadow-xs hover:border-blue-200"
+              >
+                <ArrowLeft size={16} /> Back to Open Jobs
+              </Link>
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                project.status === 'open' 
+                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                  : project.status === 'in-progress'
+                  ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                  : 'bg-gray-100 text-gray-700 border border-gray-200'
+              }`}>
+                <span className={`w-2 h-2 rounded-full ${project.status === 'open' ? 'bg-emerald-500 animate-pulse' : 'bg-gray-400'}`} />
+                {project.status.replace('-', ' ')}
+              </span>
             </div>
-            {project.status === 'in-progress' && project.freelancer && ( <div className="my-6 text-center bg-yellow-50 border border-yellow-200 text-yellow-800 p-4 rounded-lg"><p className="font-semibold">This project is currently in progress with <Link to={`/profile/${project.freelancer._id}`} className="font-bold hover:underline">{project.freelancer.name}</Link>.</p><p className="text-sm">Proposals are no longer being accepted.</p></div> )}
-            {project.status === 'completed' && project.freelancer && ( <div className="my-6 text-center bg-green-50 border border-green-200 text-green-800 p-4 rounded-lg"><p className="font-semibold">This project has been completed by <Link to={`/profile/${project.freelancer._id}`} className="font-bold hover:underline">{project.freelancer.name}</Link>.</p></div> )}
-            <div className="prose max-w-none mt-6"><h3 className="font-bold text-xl mb-2">Project Description (Overview)</h3><p>{project.description}</p></div>
-            <div className="mt-8 border-t pt-6 text-center">
-              {user?.role === 'freelancer' && project.status === 'open' && !hasSubmitted && (<button onClick={() => setIsProposalModalOpen(true)} className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-lg">Submit a Proposal</button>)}
-              {user?.role === 'freelancer' && hasSubmitted && (<div className="inline-flex items-center gap-2 text-lg font-semibold text-gray-600 bg-gray-100 py-3 px-6 rounded-lg"><CheckCircle size={22} className="text-green-500" />Proposal Submitted</div>)}
+
+            {/* Two-Column Responsive Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              {/* Left Column: Job Overview & Description */}
+              <div className="lg:col-span-8 space-y-6">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200/80 p-6 sm:p-8">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight leading-tight">
+                    {project.title}
+                  </h1>
+
+                  <div className="mt-4 pt-4 border-t border-gray-100 flex flex-wrap items-center gap-y-3 gap-x-6 text-sm text-gray-600">
+                    <div className="flex items-center gap-2 font-medium">
+                      <Banknote size={18} className="text-emerald-600" />
+                      <span>Budget: <strong className="text-emerald-700 font-bold text-base">Rs. {Number(project.budget || 0).toLocaleString('en-IN')}</strong></span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar size={16} className="text-gray-400" />
+                      <span>Posted {project.createdAt ? new Date(project.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'recently'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Briefcase size={16} className="text-blue-600" />
+                      <span>Client: <Link to={`/profile/${project.client._id}`} className="font-semibold text-blue-600 hover:underline">{project.client.name}</Link></span>
+                    </div>
+                  </div>
+
+                  {project.status === 'in-progress' && project.freelancer && (
+                    <div className="mt-6 bg-amber-50/70 border border-amber-200 text-amber-900 p-4 rounded-xl">
+                      <p className="font-bold">This project is currently in progress with <Link to={`/profile/${project.freelancer._id}`} className="underline">{project.freelancer.name}</Link>.</p>
+                      <p className="text-xs text-amber-700 mt-0.5">Proposals are currently closed for this position.</p>
+                    </div>
+                  )}
+
+                  {project.status === 'completed' && project.freelancer && (
+                    <div className="mt-6 bg-emerald-50/70 border border-emerald-200 text-emerald-900 p-4 rounded-xl">
+                      <p className="font-bold">This project has been successfully completed by <Link to={`/profile/${project.freelancer._id}`} className="underline">{project.freelancer.name}</Link>.</p>
+                    </div>
+                  )}
+
+                  <div className="mt-8 pt-6 border-t border-gray-100">
+                    <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                      <span>Project Details & Requirements</span>
+                    </h2>
+                    <FormattedDescription content={project.description} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Sticky Action & Client Sidebar */}
+              <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-6">
+                {/* Action / Budget Card */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200/80 p-6">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                    Fixed-Price Budget
+                  </p>
+                  <div className="mt-1 flex items-baseline gap-1">
+                    <span className="text-sm font-semibold text-gray-500">Rs.</span>
+                    <span className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
+                      {Number(project.budget || 0).toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    INR • Milestone or project-based payout
+                  </p>
+
+                  <div className="mt-6 pt-6 border-t border-gray-100">
+                    {user?.role === 'freelancer' && project.status === 'open' && !hasSubmitted && (
+                      <button
+                        onClick={() => setIsProposalModalOpen(true)}
+                        className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white font-bold py-3.5 px-6 rounded-xl text-base shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <Send size={18} />
+                        <span>Apply for this Job</span>
+                      </button>
+                    )}
+
+                    {user?.role === 'freelancer' && hasSubmitted && (
+                      <div className="w-full bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-xl text-center font-bold flex items-center justify-center gap-2">
+                        <CheckCircle size={20} className="text-emerald-600 flex-shrink-0" />
+                        <span>Proposal Submitted</span>
+                      </div>
+                    )}
+
+                    {user?.role === 'client' && (
+                      <div className="text-center p-3 rounded-xl bg-gray-50 text-xs text-gray-600 border border-gray-100">
+                        You are signed in as a client. Only freelancers can submit proposals.
+                      </div>
+                    )}
+
+                    {!user && (
+                      <Link
+                        to="/login"
+                        className="w-full block text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-sm"
+                      >
+                        Sign In to Apply
+                      </Link>
+                    )}
+                  </div>
+                </div>
+
+                {/* Client Overview Card */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200/80 p-6 space-y-4">
+                  <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">
+                    About the Client
+                  </h3>
+                  <div className="flex items-center gap-3 pt-1">
+                    {project.client?.profilePictureUrl ? (
+                      <img
+                        src={project.client.profilePictureUrl}
+                        alt={project.client.name}
+                        className="w-12 h-12 rounded-full object-cover border border-gray-200"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-700 font-bold text-lg flex items-center justify-center border border-blue-200">
+                        {project.client?.name?.charAt(0) || 'C'}
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <Link
+                        to={`/profile/${project.client._id}`}
+                        className="font-bold text-gray-900 hover:text-blue-600 transition-colors block truncate"
+                      >
+                        {project.client?.name}
+                      </Link>
+                      <p className="text-xs text-gray-500">Verified Client</p>
+                    </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <Link
+                      to={`/profile/${project.client._id}`}
+                      className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors inline-flex items-center gap-1"
+                    >
+                      View Client Profile & Reviews →
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}

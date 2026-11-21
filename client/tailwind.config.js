@@ -1,4 +1,4 @@
-const defaultTheme = require('tailwindcss/defaultTheme');
+import defaultTheme from 'tailwindcss/defaultTheme.js';
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -14,4 +14,4 @@ export default {
     },
   },
   plugins: [],
-}
+};

@@ -75,9 +75,17 @@ const ProjectChat = ({ project, isOpen, onClose }) => {
         >
           <div className="p-3 border-b border-gray-200 flex items-center justify-between bg-gray-50 rounded-t-xl">
             <Link to={`/profile/${otherParticipant._id}`} className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-blue-200 flex-shrink-0 flex items-center justify-center font-bold text-blue-600">
-                {otherParticipant.name.charAt(0)}
-              </div>
+              {otherParticipant.profilePictureUrl ? (
+                <img
+                  src={otherParticipant.profilePictureUrl}
+                  alt={otherParticipant.name}
+                  className="w-10 h-10 rounded-full object-cover ring-1 ring-gray-200"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex-shrink-0 flex items-center justify-center font-bold text-blue-600">
+                  {otherParticipant.name?.charAt(0) || 'U'}
+                </div>
+              )}
               <h2 className="font-bold text-lg">{otherParticipant.name}</h2>
             </Link>
             <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-200">

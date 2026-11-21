@@ -14,21 +14,32 @@ const CheckoutForm = ({ onSuccess }) => {
     if (!stripe || !elements || !isFormComplete) return;
 
     setIsProcessing(true);
+    setErrorMessage(null);
 
-    const { error, paymentIntent } = await stripe.confirmPayment({
-      elements,
-      confirmParams: { return_url: window.location.href },
-      redirect: 'if_required',
-    });
+    try {
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: { return_url: window.location.href },
+        redirect: 'if_required',
+      });
 
-    if (error) {
-      setErrorMessage(error.message);
-      toast.error(error.message);
-    } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-      onSuccess(); 
+      if (error) {
+        setErrorMessage(error.message);
+        toast.error(error.message);
+        setIsProcessing(false);
+      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+        if (onSuccess) {
+          await onSuccess(paymentIntent);
+        }
+        setIsProcessing(false);
+      } else {
+        setIsProcessing(false);
+      }
+    } catch (err) {
+      setErrorMessage(err.message || 'Payment processing failed.');
+      toast.error(err.message || 'Payment processing failed.');
+      setIsProcessing(false);
     }
-    
-    setIsProcessing(false);
   };
 
   return (

@@ -88,6 +88,10 @@ export const updateProposalStatus = async (req, res) => {
         return res.status(400).json({ error: 'This project is already in progress or completed.' });
     }
 
+    if (proposal.status !== 'pending') {
+      return res.status(400).json({ error: `This proposal has already been ${proposal.status}.` });
+    }
+
     proposal.status = status;
     await proposal.save();
 

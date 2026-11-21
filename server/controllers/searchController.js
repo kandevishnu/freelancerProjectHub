@@ -8,32 +8,30 @@ export const searchAll = async (req, res) => {
       return res.json({ jobs: [], people: [], posts: [] });
     }
 
-    const searchRegex = new RegExp(query, "i");
+    // Safely escape special regex characters to prevent regex crashes
+    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const searchRegex = new RegExp(escapedQuery, "i");
 
-    const [jobs, people, otherPosts] = await Promise.all([
+    const [jobs, people, posts] = await Promise.all([
       Post.find({
         postType: "job",
         $or: [
           { "content.jobTitle": searchRegex },
           { "content.jobDescription": searchRegex },
         ],
-      }).populate("author", "name role"),
+      }).populate("author", "name role profilePictureUrl"),
 
       User.find({
         $or: [{ name: searchRegex }, { skills: searchRegex }],
-      }).select("name role bio skills"),
+      }).select("name role bio skills profilePictureUrl"),
 
       Post.find({
         postType: { $ne: "job" },
-        "content.text": searchRegex,
-      }).populate("author", "name role"),
+        $or: [{ "content.text": searchRegex }, { hashtags: searchRegex }],
+      }).populate("author", "name role profilePictureUrl"),
     ]);
 
-    Post.find({
-      postType: { $ne: "job" },
-      $or: [{ "content.text": searchRegex }, { hashtags: searchRegex }],
-    }).populate("author", "name role profilePictureUrl"),
-      res.json({ jobs, people, posts: otherPosts });
+    res.json({ jobs, people, posts });
   } catch (err) {
     console.error("Search error:", err.message);
     res.status(500).json({ error: "Server error during search" });

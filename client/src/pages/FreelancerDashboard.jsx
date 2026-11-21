@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getMyProjects, getMyProposals } from '../services/api';
-import { Clock, CheckCircle, FileText } from 'lucide-react';
+import { getMyProjects, getMyProposals, getMyEarnings } from '../services/api';
+import { Clock, CheckCircle, FileText, Wallet, ArrowRight, TrendingUp } from 'lucide-react';
 
 const ProjectSection = ({ title, items, renderItem, emptyMessage }) => {
     const [isExpanded, setIsExpanded] = useState(false);
@@ -91,18 +91,21 @@ const ProposalListItem = ({ proposal }) => {
 const FreelancerDashboard = () => {
   const [projects, setProjects] = useState([]);
   const [proposals, setProposals] = useState([]);
+  const [earnings, setEarnings] = useState({ totalEarned: 0, pendingAmount: 0, paidInvoicesCount: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [projectsData, proposalsData] = await Promise.all([
+        const [projectsData, proposalsData, earningsData] = await Promise.all([
           getMyProjects(),
-          getMyProposals()
+          getMyProposals(),
+          getMyEarnings().catch(() => ({ totalEarned: 0, pendingAmount: 0, paidInvoicesCount: 0 }))
         ]);
         setProjects(projectsData);
         setProposals(proposalsData);
+        if (earningsData) setEarnings(earningsData);
       } catch (err) {
         setError('Failed to fetch your data.');
         console.error(err);
@@ -123,7 +126,47 @@ const FreelancerDashboard = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8">My Dashboard</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-3xl font-bold">My Dashboard</h1>
+          <p className="text-gray-500 mt-1">Overview of your active freelance projects, bids, and income.</p>
+        </div>
+      </div>
+
+      {/* Wallet / Earnings Quick Snapshot Banner */}
+      <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white rounded-2xl p-6 mb-8 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-emerald-400 flex-shrink-0 backdrop-blur-sm border border-white/10">
+            <TrendingUp size={28} />
+          </div>
+          <div>
+            <span className="text-xs font-semibold tracking-wider uppercase text-blue-200">Income Overview</span>
+            <div className="flex items-baseline gap-3 mt-1">
+              <span className="text-3xl font-extrabold text-white">
+                ₹{Number(earnings.totalEarned || 0).toLocaleString('en-IN')}
+              </span>
+              <span className="text-xs text-emerald-300 font-medium bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-400/30">
+                Received
+              </span>
+            </div>
+            {earnings.pendingAmount > 0 && (
+              <p className="text-xs text-amber-200 mt-1">
+                + ₹{Number(earnings.pendingAmount || 0).toLocaleString('en-IN')} pending client payment
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 md:pl-6">
+          <Link
+            to="/wallet"
+            className="w-full md:w-auto text-center px-4 py-2.5 bg-white text-gray-900 font-semibold text-sm rounded-xl hover:bg-gray-100 transition-colors shadow-sm flex items-center justify-center gap-2"
+          >
+            <span>View Detailed Statement</span>
+            <ArrowRight size={16} />
+          </Link>
+        </div>
+      </div>
 
       <ProjectSection
         title="Active Projects"

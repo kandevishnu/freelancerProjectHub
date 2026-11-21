@@ -38,6 +38,12 @@ const MessagesPage = () => {
   const handleStartNewConversation = async (recipientId) => {
     try {
       const newConvo = await startConversation(recipientId);
+      setConversations(prev => {
+        if (!prev.some(c => c._id === newConvo._id)) {
+          return [newConvo, ...prev];
+        }
+        return prev;
+      });
       navigate(`/messages/${newConvo._id}`);
     } catch (error) {
       toast.error("Could not start conversation.");

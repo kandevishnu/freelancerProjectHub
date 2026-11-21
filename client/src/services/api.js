@@ -344,6 +344,15 @@ export const getInvoiceForProject = async (projectId) => {
   }
 };
 
+export const getMyEarnings = async () => {
+  try {
+    const res = await axios.get('/api/invoices/my-earnings');
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export const createInvoice = async (projectId, invoiceData) => {
   try {
     const res = await axios.post(`/api/projects/${projectId}/invoices`, invoiceData);
@@ -356,6 +365,15 @@ export const createInvoice = async (projectId, invoiceData) => {
 export const createStripePaymentIntent = async (invoiceId) => {
   try {
     const res = await axios.post('/api/payments/create-payment-intent', { invoiceId });
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const payInvoice = async (invoiceId) => {
+  try {
+    const res = await axios.patch(`/api/invoices/${invoiceId}/pay`);
     return res.data;
   } catch (error) {
     handleError(error);

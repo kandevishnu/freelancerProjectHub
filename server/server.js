@@ -74,8 +74,6 @@ app.get("/", (req, res) => res.send("API is running..."));
 const server = http.createServer(app);
 initSocket(server);
 
-console.log("--- SERVER STARTING UP - LOOK IN THIS TERMINAL FOR ERRORS ---");
-
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
